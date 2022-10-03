@@ -41,6 +41,44 @@ router.route('/')
 			})
 	})
 
+	.put((req, res) => { // edit user
+		let { id, name, gender, email, phone, username, password, type, status } = req.body
+
+		let pass = password!='' ? `password=MD5('${password}'),` : ``
+
+		query(`UPDATE user SET
+				name='${name}',
+				gender='${gender}',
+				email='${email}',
+				phone='${phone}',
+				username='${username.toLowerCase()}',
+				${pass}
+				type='${type}',
+				status='${status}'
+			WHERE id=${id}
+		`)
+			.then(result => res.json({
+				success: result.affectedRows > 0 || result.changedRows > 0
+			}))
+			.catch(err => {
+				console.log(err)
+				res.sendStatus(500)
+			})
+	})
+
+	.delete((req, res) => {
+		let { id } = req.body
+
+		query(`DELETE FROM user WHERE id=${id}`)
+			.then(result => res.json({
+				success: result.affectedRows > 0 || result.changedRows > 0
+			}))
+			.catch(err => {
+				console.log(err)
+				res.sendStatus(500)
+			})
+	})
+
 
 
 

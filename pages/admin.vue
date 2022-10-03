@@ -34,7 +34,7 @@ onMounted(() => {
 				<v-app-bar-nav-icon></v-app-bar-nav-icon>
 				<v-app-bar-title>{{ state.name }}</v-app-bar-title>
 				<v-spacer></v-spacer>
-				<v-btn text>
+				<v-btn text @click="destroy">
 					<v-icon>mdi-logout</v-icon>
 					Logout
 				</v-btn>

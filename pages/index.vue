@@ -1,83 +1,103 @@
-<template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card class="logo py-4 d-flex justify-center">
-        <NuxtLogo />
-        <VuetifyLogo />
-      </v-card>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
-          <p>
-            For more information on Vuetify, check out the <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation
-            </a>.
-          </p>
-          <p>
-            If you have questions, please join the official <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord
-            </a>.
-          </p>
-          <p>
-            Find a bug? Report it on the github <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board
-            </a>.
-          </p>
-          <p>Thank you for developing with Vuetify and I look forward to bringing more exciting features in the future.</p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3">
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br>
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            nuxt
-            to="/inspire"
-          >
-            Continue
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
-</template>
+<script setup>
+import axios from 'axios';
+import { reactive, onMounted, ref } from 'vue';
 
-<script>
-export default {
-  name: 'IndexPage'
+const state = reactive({
+	username: 'admin',
+	password: 'admin',
+	rules: {
+		required: [v => !!v || 'Required Field!'],
+	},
+	valid: true,
+	snackbar: {
+		toggle: false,
+		text: '',
+		color: 'red',
+		show: (text, color = 'error') => {
+			state.snackbar.toggle = true
+			state.snackbar.text = text
+			state.snackbar.color = color
+		}
+	},
+	disabled: true,
+})
+
+const form = ref(null)
+
+const login = () => {
+	if (form.value.validate()) {
+		state.disabled = true
+		axios.post('/api/session', {
+			username: state.username,
+			password: state.password
+		})
+			.then(result => {
+				if (result.data.success) {
+					localStorage.order_data = JSON.stringify(result.data)
+					location.assign(result.data.type)
+				}
+				else {
+					state.snackbar.show('Incorrect username and password!')
+					state.disabled = false
+				}
+			})
+			.catch(err => {
+				state.snackbar.show('Something went wrong!')
+				state.disabled = false
+			})
+	}
 }
+
+onMounted(() => {
+	try { // resume session
+		let { type, username } = JSON.parse(localStorage.order_data)
+		axios.get(`/api/user?type=${type}&username=${username}`)
+			.then(result => {
+				if (result.data.success) location.assign(type)
+				else {
+					localStorage.order_data = null
+					state.disabled = false
+				}
+			})
+			.catch(err => {
+				localStorage.order_data = null
+				state.disabled = false
+			})
+	} catch {
+		state.disabled = false
+	}
+})
 </script>
+
+<template>
+	<v-app>
+		<v-container fill-height>
+			<v-snackbar v-model="state.snackbar.toggle" :timeout="2500" top :color="state.snackbar.color" elevation="3">
+				<span class="text-subtitle-1">{{ state.snackbar.text }}</span>
+			</v-snackbar>
+			<v-row>
+				<v-col align="center" justify="center">
+					<v-form ref="form" v-model="state.valid" style="width: 250px;">
+						<h1>Login</h1>
+						<v-text-field
+							v-model="state.username"
+							@keypress.enter="login"
+							:rules="state.rules.required"
+							:disabled="state.disabled"
+							required
+							label="Username" />
+						<v-text-field
+							v-model="state.password"
+							@keypress.enter="login"
+							:rules="state.rules.required"
+							:disabled="state.disabled"
+							required
+							type="password"
+							label="Password" />
+						<v-btn class="mt-5" color="primary" @click="login" :loading="state.disabled">Login</v-btn>
+					</v-form>
+				</v-col>
+			</v-row>
+		</v-container>
+	</v-app>
+</template>

@@ -1,0 +1,47 @@
+import { Router } from 'express'
+import { query } from '..'
+
+
+const router = Router()
+
+
+
+router.route('/')
+	.get((req, res) => { // show users
+		let { type, username } = req.query
+
+		let sql = `SELECT * FROM user`
+
+		if (type && username) sql += ` WHERE type='${type}' AND username='${username}'`
+		else if (type && !username) sql += ` WHERE type='${type}'`
+		else if (!type && username) sql += ` WHERE username='${username}'`
+		
+		query(sql)
+			.then(result => {
+				res.json({ success: result.length > 0, list: result })
+			})
+			.catch(err => {
+				console.log(err)
+				res.sendStatus(500)
+			})
+	})
+
+	.post((req, res) => { // create new user
+		let { name, gender, email, phone, username, password, type, status } = req.body
+
+		query(`INSERT INTO user VALUES (
+			NULL, '${name}', '${gender}', '${email}', '${phone}', '${username.toLowerCase()}', MD5('${password}'), '${type}', '${status}'
+		)`)
+			.then(result => res.json({
+				success: result.affectedRows > 0 || result.changedRows > 0
+			}))
+			.catch(err => {
+				console.log(err)
+				res.sendStatus(500)
+			})
+	})
+
+
+
+
+export default router

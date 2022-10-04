@@ -5,6 +5,7 @@ import { reactive, onMounted } from 'vue';
 const state = reactive({
 	tabs: null,
 	name: '',
+	drawer: false
 })
 
 const destroy = () => {
@@ -31,7 +32,7 @@ onMounted(() => {
 	<div>
 		<v-app>
 			<v-app-bar dense dark elevation="1" max-height="auto" app>
-				<v-app-bar-nav-icon></v-app-bar-nav-icon>
+				<v-app-bar-nav-icon @click="state.drawer = false"></v-app-bar-nav-icon>
 				<v-app-bar-title>{{ state.name }}</v-app-bar-title>
 				<v-spacer></v-spacer>
 				<v-btn text @click="destroy">
@@ -48,13 +49,19 @@ onMounted(() => {
 				</template>
 			</v-app-bar>
 
-			<v-main>
+			<!-- <v-navigation-drawer app dark v-model="state.drawer">
+			</v-navigation-drawer> -->
+
+			<v-main class="grey lighten-3">
 				<v-tabs-items v-model="state.tabs" class="m-4">
 					<v-tab-item>
 						<UserAccounts />
 					</v-tab-item>
 					<v-tab-item>
 						<MenuItems />
+					</v-tab-item>
+					<v-tab-item>
+						<Tables />
 					</v-tab-item>
 				</v-tabs-items>
 			</v-main>

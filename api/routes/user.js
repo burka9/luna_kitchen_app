@@ -17,9 +17,9 @@ router.route('/')
 		else if (!type && username) sql += ` WHERE username='${username}'`
 		
 		query(sql)
-			.then(result => {
-				res.json({ success: result.length > 0, list: result })
-			})
+			.then(result => res.json({
+				success: (type || username) ? result.length > 0 : true, list: result
+			}))
 			.catch(err => {
 				console.log(err)
 				res.sendStatus(500)
@@ -67,9 +67,7 @@ router.route('/')
 	})
 
 	.delete((req, res) => {
-		let { id } = req.body
-
-		query(`DELETE FROM user WHERE id=${id}`)
+		query(`DELETE FROM user WHERE id=${req.body.id}`)
 			.then(result => res.json({
 				success: result.affectedRows > 0 || result.changedRows > 0
 			}))

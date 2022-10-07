@@ -7,7 +7,7 @@ const router = Router()
 
 router.route('/')
 	.get((req, res) => { // get list of tables
-		query(`SELECT * FROM tables`)
+		query(`SELECT * FROM tables ${req.query.sort ? 'ORDER BY table_index' : ''}`)
 			.then(result => res.json({
 				success: true, list: result
 			}))
@@ -18,7 +18,14 @@ router.route('/')
 	})
 
 	.post((req, res) => { // create table
-		query(`INSERT INTO tables VALUES (NULL, "Table")`)
+		let index = 1
+
+		query(`SELECT * FROM tables`)
+			.then(result => {
+				while (result.find(item => item.table_index==index))
+					index++
+				return query(`INSERT INTO tables VALUES (NULL, "Table", ${index})`)
+			})
 			.then(result => res.json({
 				success: result.affectedRows > 0 || result.changedRows > 0
 			}))

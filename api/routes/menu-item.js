@@ -7,7 +7,7 @@ const router = Router()
 
 router.route('/')
 	.get((req, res) => { // get list of menu items
-		query(`SELECT * FROM menu_item`)
+		query(`SELECT * FROM menu_item ${req.query.id ? (' WHERE id='+req.query.id) : ''}`)
 			.then(result => res.json({
 				success: true, list: result
 			}))

@@ -3,8 +3,8 @@ import axios from 'axios';
 import { reactive, onMounted, ref } from 'vue';
 
 const state = reactive({
-	username: 'admin',
-	password: 'admin',
+	username: 'waiter',
+	password: 'waiter',
 	rules: {
 		required: [v => !!v || 'Required Field!'],
 	},
@@ -68,6 +68,7 @@ onMounted(() => {
 	}
 })
 </script>
+
 
 <template>
 	<v-app>

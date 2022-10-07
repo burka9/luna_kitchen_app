@@ -36,11 +36,23 @@ export default async () => {
 		)`)
 		await query(`CREATE TABLE IF NOT EXISTS tables (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			name VARCHAR(16)
+			name VARCHAR(16),
+			table_index INT(10)
+		)`)
+		await query(`CREATE TABLE IF NOT EXISTS orders (
+			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			menu_items VARCHAR(255) NOT NULL,
+			user_id INT(10) NOT NULL,
+			table_index INT(10),
+			order_issued_date VARCHAR(32),
+			order_done_date VARCHAR(32),
+			order_archive_date VARCHAR(32),
+			status VARCHAR(32),
+			description VARCHAR(255)
 		)`)
 		console.log('tables initialized')
 	} catch(e) {
-		console.log(e.sqlError)
+		console.log(e)
 		console.log('error creating tables')
 	}
 

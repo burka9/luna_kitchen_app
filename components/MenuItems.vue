@@ -147,7 +147,7 @@
 </script>
 	
 	<template>
-		<v-container class="grey lighten-3 p-10" fluid style="padding: 2rem">
+		<v-container fluid>
 			<v-snackbar v-model="state.snackbar.toggle" :timeout="3500" top :color="state.snackbar.color" elevation="3">
 				<span class="text-subtitle-1">{{ state.snackbar.text }}</span>
 			</v-snackbar>

@@ -6,6 +6,7 @@ const state = reactive({
 	dialog: false,
 	tables: [],
 	menu_list: [],
+	selected: [],
 	order: {
 		id: '',
 		items: [],
@@ -25,13 +26,12 @@ const state = reactive({
 	},
 })
 
-
-const selectedList = computed(() => state.menu_list.filter(i => i.selected))
 const price = computed(() => {
 	let price = 0
-	state.menu_list.filter(i => i.selected).forEach(i => price += parseInt(i.price))
+	state.selected.forEach(i => price += parseInt(i.price))
 	return price
 })
+
 
 const clear = () => {
 	state.order = {
@@ -41,15 +41,15 @@ const clear = () => {
 		issued: null,
 		table: null,
 	}
-	state.menu_list.forEach(item => item.selected = false)
+	state.selected = []
 }
 
 const submit = () => {
-	state.order.items = state.menu_list.filter(i => i.selected).map(i => i.id)
+	state.order.items = state.selected.map(i => i.id)
 	state.order.issued = new Date().getTime()
 	try {
 		state.order.id = JSON.parse(localStorage.order_data).id
-	} catch {}
+	} catch { }
 
 	if (state.order.items.length > 0) {
 		// do submit order request
@@ -107,21 +107,34 @@ init()
 				</v-app-bar>
 
 				<v-card-title>Menu List</v-card-title>
-				<v-card-text>
-					<v-virtual-scroll height="240px" itemHeight="40px" :items="state.menu_list">
-						<template v-slot:default="{ item }">
-							<div class="d-flex justify-between" :disabled="!item.available">
-								<v-checkbox class="ma-0 mr-auto" v-model="item.selected" small hide-details :label="item.name"></v-checkbox>
-								<p class="ma-0 mr-4">{{ item.price }}</p>
-							</div>
-							<v-divider></v-divider>
-						</template>
-					</v-virtual-scroll>
-					<v-card-title>Selected Items</v-card-title>
-					<div class="d-flex flex-wrap">
-						<v-chip v-for="item in selectedList" :key="item.id" class="ma-1" dark @click="item.selected = false">{{ item.name }}</v-chip>
-					</div>
-				</v-card-text>
+				<v-simple-table dense fixed-header height="35vh">
+					<template v-slot:default>
+						<thead>
+							<tr>
+								<th class="text-left">Name</th>
+								<th class="text-left">Price</th>
+								<th class="text-left">Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="item in state.menu_list" :key="item.id" @click="item.available ? state.selected.push(item) : ''">
+								<td>{{ item.name }}</td>
+								<td>{{ item.price }}</td>
+								<td>
+									<v-chip small dark :color="item.available ? 'primary' : 'error'">
+										{{ item.available ? 'Available' : 'Not Available' }}
+									</v-chip>
+								</td>
+							</tr>
+						</tbody>
+					</template>
+				</v-simple-table>
+				<v-card-title>Selected Items</v-card-title>
+				<div class="d-flex flex-wrap pa-2">
+					<v-chip v-for="(item, index) in state.selected" :key="index" dark dense class="ma-1" style="cursor: pointer;" @click="state.selected.splice(index, 1)">
+						{{ item.name }}
+					</v-chip>
+				</div>
 			</v-card>
 		</v-dialog>
 
@@ -129,13 +142,13 @@ init()
 			<v-row align="center">
 				<v-col cols="3">
 					<div class="d-flex flex-column">
-						<p class="ma-0 font-weight-bold">Items:{{ selectedList.length }}</p>
+						<p class="ma-0 font-weight-bold">Items:{{ state.selected.length }}</p>
 						<p class="ma-0 font-weight-bold">Price:{{ price }}</p>
 					</div>
 				</v-col>
 				<v-col cols="9" sm="6">
 					<div class="d-flex flex-wrap">
-						<v-chip v-for="item in selectedList" :key="item.id" class="ma-1" dark @click="item.selected = false">{{ item.name }}</v-chip>
+						<v-chip v-for="(item, index) in state.selected" :key="`items-${index}`" class="ma-1" dark @click="state.selected.splice(index, 1)">{{ item.name }}</v-chip>
 					</div>
 				</v-col>
 				<v-col cols="12" sm="3" align="center" justify="center">

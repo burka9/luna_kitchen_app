@@ -6,10 +6,11 @@
 	import NewOrder from '../components/NewOrder.vue';
 	import Pending from '../components/Pending.vue';
 	import Finished from '../components/Finished.vue';
+	import Orders from '../components/Orders.vue';
 
 	export default {
 		name: 'CustomView',
-		components: { UserAccounts, MenuItems, Tables },
+		components: { UserAccounts, MenuItems, Tables, Orders },
 
 		data: () => ({
 			types: ['/admin', '/waiter', '/kitchen'],
@@ -25,6 +26,10 @@
 				{
 					header: ['New', 'Pending', 'finished'],
 					component: [ NewOrder, Pending, Finished ],
+				},
+				{
+					header: ['orders', 'menu items' ],
+					component: [ Orders, MenuItems ],
 				}
 			],
 		}),

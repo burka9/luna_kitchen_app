@@ -65,4 +65,7 @@ export default {
   serverMiddleware: {
     '/api': '~/api'
   },
+  server: {
+    host: '0.0.0.0'
+  }
 }

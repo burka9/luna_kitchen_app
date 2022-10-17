@@ -3,6 +3,7 @@ import { computed, reactive } from 'vue';
 import axios from 'axios';
 
 const state = reactive({
+	search: '',
 	dialog: false,
 	tables: [],
 	menu_list: [],
@@ -106,7 +107,18 @@ init()
 					<v-btn dark text @click="state.dialog = false">Save</v-btn>
 				</v-app-bar>
 
-				<v-card-title>Menu List</v-card-title>
+				<v-card-title>
+					<v-row>
+						<v-col cols="12" sm="4">
+							<p>Menu List</p>
+						</v-col>
+						<v-spacer></v-spacer>
+						<v-col cols="12" sm="4">
+							<v-text-field label="Search" dense hide-details prepend-inner-icon="mdi-magnify" />
+						</v-col>
+					</v-row>
+				</v-card-title>
+				
 				<v-simple-table dense fixed-header height="35vh">
 					<template v-slot:default>
 						<thead>

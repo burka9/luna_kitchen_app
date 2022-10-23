@@ -34,9 +34,7 @@ router.route('/')
 		resolve(`UPDATE menu_item SET name="${name}", price="${price}", available=${available} WHERE id=${id}`, res)
 	})
 
-	.delete((req, res) => { // delete table
-		resolve(`DELETE FORM menu_item WHERE id=${req.body.id}`, res)
-	})
+	.delete((req, res) => resolve(`DELETE FROM menu_item WHERE id=${req.body.id}`, res))
 
 
 export default router

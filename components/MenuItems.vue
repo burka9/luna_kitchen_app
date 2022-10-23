@@ -13,7 +13,9 @@ const state = reactive({
 		toggle: false,
 		text: '',
 		color: 'red',
+		override: false,
 		show: (text, color = 'error') => {
+			if (state.snackbar.override) return state.snackbar.override = false
 			state.snackbar.toggle = true
 			state.snackbar.text = text
 			state.snackbar.color = color
@@ -166,8 +168,14 @@ const udpateCategorySection = () => {
 }
 
 const toggleStatus = item => {
-	item.available = !item.available
-	console.log(item.available)
+	state.dialog.item.id = item.id
+	state.dialog.item.name = item.name
+	state.dialog.item.price = item.price
+	state.dialog.item.available = !item.available
+	state.dialog.item.category_id = item.category_id
+	state.dialog.item.subcategory_id = item.subcategory_id
+	state.snackbar.override = true
+	editItem()
 }
 
 // category functions
@@ -256,7 +264,12 @@ const editItem = () => {
 		.catch(error)
 		.then(() => state.dialog.item.close())
 }
-const deleteItem = () => {}
+const deleteItem = () => {
+	axios.delete('/api/menu-item', { data: { id: state.delete.item.id }})
+		.then(result => completed(result, 'Item deleted!'))
+		.catch(error)
+		.then(() => state.delete.close())
+}
 
 
 // fetch data

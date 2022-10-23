@@ -28,11 +28,27 @@ export default async () => {
 			type VARCHAR(255),
 			status VARCHAR(255)
 		)`)
+		await query(`CREATE TABLE IF NOT EXISTS menu_item_category (
+			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			detail VARCHAR(255)
+		)`)
+		await query(`CREATE TABLE IF NOT EXISTS menu_item_subcategory (
+			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			detail VARCHAR(255),
+			category_id INT(10) UNSIGNED,
+			FOREIGN KEY (category_id) REFERENCES menu_item_category (id) ON DELETE CASCADE ON UPDATE RESTRICT
+		)`)
 		await query(`CREATE TABLE IF NOT EXISTS menu_item (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
 			price VARCHAR(255) NOT NULL,
-			available BOOLEAN
+			available BOOLEAN,
+			category_id INT(10) UNSIGNED,
+			subcategory_id INT(10) UNSIGNED,
+			FOREIGN KEY (category_id) REFERENCES menu_item_category (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+			FOREIGN KEY (subcategory_id) REFERENCES menu_item_subcategory (id) ON DELETE CASCADE ON UPDATE RESTRICT
 		)`)
 		await query(`CREATE TABLE IF NOT EXISTS tables (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

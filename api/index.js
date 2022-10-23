@@ -41,7 +41,7 @@ conn.connect(err => {
 })
 
 
-export async function query(sql) {
+export async function query (sql) {
 	return new Promise((resolve, reject) => {
 		if (!sql.endsWith(';')) sql = sql + ';'
 		conn.query(sql, (err, result) => {
@@ -49,6 +49,15 @@ export async function query(sql) {
 			resolve(result)
 		})
 	})
+}
+
+export function resolve (sql, res) {
+	query(sql)
+		.then(result => res.json({ success: result.affectedRows > 0 || result.changedRows > 0 }))
+		.catch(err => {
+			console.log(err)
+			res.sendStatus(500)
+		})
 }
 
 export default {

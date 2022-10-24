@@ -125,7 +125,7 @@ const state = reactive({
 			id: -1,
 			name: '',
 			price: '',
-			available: false,
+			available: 1,
 			editing: false,
 			toggle: item => {
 				state.dialog.item.show = true
@@ -142,7 +142,7 @@ const state = reactive({
 				state.dialog.item.id = -1
 				state.dialog.item.name = ''
 				state.dialog.item.price = ''
-				state.dialog.item.available = false
+				state.dialog.item.available = 1
 				state.dialog.item.editing = false
 				state.dialog.item.show = false
 			},
@@ -385,7 +385,7 @@ fetch_category()
 						<v-btn small color="primary" @click="state.dialog.category.toggle()">New Category</v-btn>
 					</div>
 					<v-row>
-						<v-col v-for="cat in state.categories" :key="`${cat.id}-window`" cols="4">
+						<v-col v-for="cat in state.categories" :key="`${cat.id}-window`" cols="12" md="4">
 							<v-card relative>								
 								<v-card-title>
 									<p class="ma-0">{{ cat.name }}</p>
@@ -422,12 +422,12 @@ fetch_category()
 					</v-toolbar>
 
 					<div class="d-flex">
-						<div class="d-flex flex-column grey lighten-3" style="min-width: 200px;">
+						<div class="d-flex flex-column grey lighten-3">
 							<div v-for="sub in state.category.children" :key="`sub-${sub.id}`" :class="{
-								'list-item pa-4 px-8 cursor-pointer': true,
+								'list-item pa-4 px-4 pa-md-4 px-md-8 cursor-pointer': true,
 								'active': sub.id==state.subcategory.item.id
 							}" @click="state.subcategory.set(sub)">
-								<p class="ma-0 mx-3">{{ sub.name }}</p>
+								<p class="ma-0 mx-md-8">{{ sub.name }}</p>
 							</div>
 						</div>
 						<v-container class="flex-grow-1 ma-2 mx-6" v-show="JSON.stringify(state.subcategory.item) !== JSON.stringify({})">
@@ -450,7 +450,7 @@ fetch_category()
 							<div class="my-6"></div>
 							
 							<div class="d-flex align-center mb-8">
-								<v-text-field class="col-4" v-model="state.search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details />
+								<v-text-field class="col-4" v-model="state.subcategory.item.search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details />
 								<v-spacer></v-spacer>
 								<v-btn small color="primary" @click="state.dialog.item.toggle()" elevation="0">
 									<v-icon small class="mr-2">mdi-plus</v-icon>
@@ -502,6 +502,7 @@ fetch_category()
 	color: #224;
 	font-weight: bold;
 	text-transform: capitalize;
+	box-shadow: -3px 2px 2px #0003;
 }
 .list-item:not(.active):hover {
 	background-color: #9993;

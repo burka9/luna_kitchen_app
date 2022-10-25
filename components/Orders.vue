@@ -15,7 +15,7 @@
 						id: item.id,
 						table: item.table,
 						status: item.status,
-						user_name: item.user.name,
+						user_name: item.user ? item.user.name : '',
 						description: item.description,
 						items: item.items.map(i => ({ name: i.name, done: false })),
 						price: getPrice(item.items),
@@ -65,7 +65,7 @@
 						<v-divider class="mx-10 my-3"></v-divider>
 						<v-card-actions class="d-flex justify-space-between align-center">
 							<p class="ma-0 subtitle-2">{{ order.issued }}</p>
-							<v-btn dark color="green" @click="finish">Finish All</v-btn>
+							<v-btn dark color="green" @click="finish(order)">Finish All</v-btn>
 						</v-card-actions>
 					</v-card-text>
 				</v-card>

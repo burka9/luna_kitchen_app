@@ -68,7 +68,6 @@ const deselectItem = item => {
 
 const clear = () => {
 	state.order = {
-		user_id: -1,
 		table_index: -1,
 		description: '',
 	},

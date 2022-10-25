@@ -3,8 +3,7 @@
 	import { reactive } from 'vue';
 	
 	const state = reactive({
-		items: [],
-		panels: [],
+		orders: [],
 	})
 	
 	
@@ -12,13 +11,13 @@
 		axios.get(`/api/order?status=pending`)
 			.then(result => {
 				if (result.data.success)
-					state.items = result.data.list.map(item => ({
+					state.orders = result.data.list.map(item => ({
 						id: item.id,
 						table: item.table,
 						status: item.status,
 						user_name: item.user.name,
 						description: item.description,
-						order: item.items.map(i => i.name),
+						items: item.items.map(i => ({ name: i.name, done: false })),
 						price: getPrice(item.items),
 						issued: new Date(parseInt(item.issued)).toLocaleTimeString()
 					}))
@@ -40,70 +39,43 @@
 		items.forEach(i => price += parseInt(i.price))
 		return price
 	}
-	
-	const get_title = title => {
-		title = title.join(', ')
-		return title.length>21 ? `${title.substr(0, 20)}...` : title
-	}
+
 	
 	fetch_list()
 	</script>
 	
 	<template>
 		<v-container fluid>
-			<v-expansion-panels v-model="state.panels">
-				<v-expansion-panel v-for="(item, i) in state.items" :key="i">
-					<v-expansion-panel-header>
-						<v-row align="center" class="mx-1 mx-sm-2 mx-md-3">
-							<h4>{{ get_title(item.order) }}</h4>
-							<v-spacer></v-spacer>
-							<p class="ma-0"><span class="fonr-weight-bold">Order By</span> {{ item.user_name }}</p>
-						</v-row>
-					</v-expansion-panel-header>
-					<v-expansion-panel-content>
-						<v-row class="px-0 px-sm-3 px-md-6">
-							<v-col cols="12" sm="4" md="2">
-								<p class="ma-0 font-weight-bold">Items</p>
-							</v-col>
-							<v-col cols="12" sm="8" md="10">
-								<p class="ma-0">{{ item.order.join(', ') }}</p>
-							</v-col>
-							<v-col cols="12" sm="4" md="2">
-								<p class="ma-0 font-weight-bold">Price</p>
-							</v-col>
-							<v-col cols="12" sm="8" md="10">
-								<p class="ma-0">{{ item.price }}</p>
-							</v-col>
-							<v-col cols="12" sm="4" md="2">
-								<p class="ma-0 font-weight-bold">Descritption</p>
-							</v-col>
-							<v-col cols="12" sm="8" md="10">
-								<p class="ma-0">{{ item.description }}</p>
-							</v-col>
-							<v-col cols="12" sm="4" md="2">
-								<p class="ma-0 font-weight-bold">Status</p>
-							</v-col>
-							<v-col cols="12" sm="8" md="10">
-								<v-chip color="orange lighten-2">{{ item.status }}</v-chip>
-							</v-col>
-							<v-col cols="12" sm="4" md="2">
-								<p class="ma-0 font-weight-bold">Order Time</p>
-							</v-col>
-							<v-col cols="12" sm="8" md="10">
-								<v-chip color="orange lighten-2">{{ item.issued }}</v-chip>
-							</v-col>
-							<v-col cols="12" v-if="true">
-								<div class="d-flex justify-end">
-									<v-spacer></v-spacer>
-									<v-btn color="green darken-2" dark small @click="finish(item)">
-										<span>Done</span>
-										<v-icon>mdi-check</v-icon>
-									</v-btn>
-								</div>
-							</v-col>
-						</v-row>
-					</v-expansion-panel-content>
-				</v-expansion-panel>
-			</v-expansion-panels>
+			<div class="d-flex flex-wrap">
+				<v-card v-for="order in state.orders" :key="`order-${order.id}`" class=" ma-3" style="max-width: 400px">
+					<v-list-item>
+						<v-list-item-content>
+							<v-list-item-title class="text-h5">{{ order.user_name }}'s order'</v-list-item-title>
+							<v-list-item-subtitle class="text-subtitle-1">{{ order.description }}</v-list-item-subtitle>
+						</v-list-item-content>
+						<p class="ma-0 text-subtitle-1">{{ Number(order.price).toFixed(2) }}</p>
+					</v-list-item>
+					<v-divider class="mx-12"></v-divider>
+					<v-card-text class="grow-1">
+						<v-container fill-height>
+							<v-chip v-for="(item, index) in order.items" :key="`items-${index}`" class="pointer ma-3 my-2" :color="item.done && false ? 'primary' : 'warning'" @click="item.done = !item.done">
+							{{ item.name }}
+						</v-chip>
+						</v-container>
+						<v-divider class="mx-10 my-3"></v-divider>
+						<v-card-actions class="d-flex justify-space-between align-center">
+							<p class="ma-0 subtitle-2">{{ order.issued }}</p>
+							<v-btn dark color="green" @click="finish">Finish All</v-btn>
+						</v-card-actions>
+					</v-card-text>
+				</v-card>
+			</div>
 		</v-container>
 	</template>
+
+
+<style scoped>
+.pointer {
+	cursor: pointer;
+}
+</style>

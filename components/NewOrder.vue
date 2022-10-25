@@ -14,84 +14,121 @@ const state = reactive({
 		}
 	},
 
-	window: {
-		value: 1,
-		items: () => {
-			state.window.value = 2
-			state.subwindow.categoryView()
-		},
-		home: () => {
-			state.window.value = 1
-		},
-	},
-	subwindow: {
-		value: 1,
+	selection: {
 		category: null,
 		subcategory: null,
-		categoryView: () => {
-			state.subwindow.value = 1
-			state.subwindow.category = null
-			state.subwindow.subcategory = null
-		},
-		subcategoryView: category => {
-			state.subwindow.value = 2
-			state.subwindow.category = category
-		},
-		itemView: subcategory => {
-			state.subwindow.value = 3
-			state.subwindow.subcategory = subcategory
-		},
+		items: [],
 	},
-	menu: {
-		category: [],
-		subcategory: [],
-		item: [],
+
+	user: {
+		id: -1,
+		username: '',
+		name: '',
 	},
-	user: { name: '' },
-	tables: [],
 
 	order: {
 		user_id: -1,
 		table_index: -1,
-		order_issued_date: null,
-		status: 'pending',
 		description: '',
-		items: [],
-		add: item => {
-			if (!state.order.items.find(i => i.id = item.id)) {
-				state.order.items.push({ item, count: 1 })
-			}
-		}
 	},
+
+	tables: [],
+	category: [],
+	subcategory: [],
+	items: [],
 })
 
-const price = computed(() => 0)
-const category_temp = computed(() => state.subwindow.category===null ? 'Category' : state.subwindow.category.name)
-const subcategory_temp = computed(() => state.subwindow.subcategory===null ? null : state.subwindow.subcategory.name)
+const price = computed(() => {
+	let price = 0
+	state.selection.items.forEach(i => price += parseInt(i.price))
+	return price
+})
+const subcategories = category => state.subcategory.filter(subcategory => subcategory.category_id == category.id)
+const items = computed(() => {
+	if (state.selection.category == null || state.selection.subcategory == null) return []
 
-const filteredSubcategory = computed(() => {})
-const filteredItem = computed(() => ([]))
+	return state.items.filter(item => item.category_id == state.selection.category.id && item.subcategory_id == state.selection.subcategory.id)
+})
 
-try {
-	state.user = JSON.parse(localStorage.order_data)
-	state.order.user_id = state.user.id
+const makecategoryActive = category => state.selection.category = category
+const makeSubcategoryActive = subcategory => state.selection.subcategory = subcategory
+const isActive = subcategory => state.selection.subcategory != null ? state.selection.subcategory.id == subcategory.id : false
+
+const getSelectionCount_category = category => state.selection.items.filter(i => i.category_id == category.id).length
+const getSelectionCount_subcategory = subcategory => state.selection.items.filter(i => i.subcategory_id == subcategory.id).length
+const getSelectionCount = item => state.selection.items.filter(i => i.id == item.id).length
+const selectItem = item => {
+	state.selection.items.push(item)
 }
-catch {}
+const deselectItem = item => {
+	let index = state.selection.items.findIndex(i => i.id == item.id)
 
-axios.get('/api/table')
-	.then(result => state.tables = result.data.success ? result.data.list.map(l => ({ ...l, label: `Table ${l.table_index}` })) : [])
-	.catch(err => console.error(err))
+	if (-1 < index) state.selection.items.splice(index, 1)
+}
 
-axios.get('/api/category')
-	.then(result => state.menu.category = result.data.success ? result.data.list : [])
-	.catch(err => console.error(err))
-axios.get('/api/subcategory')
-	.then(result => state.menu.subcategory = result.data.success ? result.data.list : [])
-	.catch(err => console.error(err))
-axios.get('/api/menu-item')
-	.then(result => state.menu.item = result.data.success ? result.data.list : [])
-	.catch(err => console.error(err))
+const clear = () => {
+	state.order = {
+		user_id: -1,
+		table_index: -1,
+		description: '',
+	},
+	state.selection.items = []
+}
 
+const submit = () => {
+	if (state.selection.items.length == 0) return
+	// request
+	axios.post('/api/order', {
+		description: state.order.description,
+		user_id: state.order.user_id,
+		table_index: state.order.table_index,
+		items: state.selection.items.map(item => item.id),
+		issued: new Date().getTime(),
+	})
+		.then(result => {
+			if (result.data.success) return state.snackbar.show('Order sent!', 'primary')
+			
+			state.snackbar.show('Something went wrong!')
+		})
+		.catch(err => {
+			console.error(err)
+			state.snackbar.show('Something went wrong!')
+		})
+		.then(clear)
+}
+
+
+const init = () => {
+	try {
+		state.user = JSON.parse(localStorage.order_data)
+		state.order.user_id = state.user.id
+	}
+	catch (e) {
+		console.log('error here initing user from local storage')
+	}
+
+	// get table list
+	axios.get('/api/table')
+		.then(result => state.tables = result.data.success ? result.data.list.map(table => ({ ...table, label: `Table ${table.table_index}` })) : [])
+		.catch(err => console.error(err))
+
+	// get category list
+	axios.get('/api/category')
+		.then(result => state.category = result.data.success ? result.data.list : [])
+		.catch(err => console.error(err))
+
+	// get subcategory list
+	axios.get('/api/subcategory')
+		.then(result => state.subcategory = result.data.success ? result.data.list : [])
+		.catch(err => console.error(err))
+
+	// get item list
+	axios.get('/api/menu-item')
+		.then(result => state.items = result.data.success ? result.data.list : [])
+		.catch(err => console.error(err))
+}
+
+init()
 </script>
 
 <template>
@@ -100,133 +137,90 @@ axios.get('/api/menu-item')
 			<span class="text-subtitle-1">{{ state.snackbar.text }}</span>
 		</v-snackbar>
 
-
-		<v-window v-model="state.window.value">
-			<v-window-item :value="1">
-				<v-container>
-					<div class="d-flex align-center justify-center mb-12">
-						<v-btn color="primary" elevation="0" @click="state.window.items">
-							<v-icon>mdi-plus</v-icon>
-							Add Item
-						</v-btn>
-						<v-spacer></v-spacer>
-						<p class="ma-0 text-subtitle-1 grey--text">{{ new Date().toDateString() }}</p>
-					</div>
-
-					<div class="d-flex justify-center">
-						<v-card class="pa-10" style="width: 80vw; max-width: 500px">
-							<v-row>
-								<v-col cols="6">
-									<p class="title">Waiter Name</p>
-								</v-col>
-								<v-col cols="4" offset="2">
-									<div class="d-flex justify-end">
-										<p class="subtitle">{{ state.user.name }}</p>
-									</div>
-								</v-col>
-							</v-row>
-							<v-row>
-								<v-col cols="6">
-									<p class="title">Table</p>
-								</v-col>
-								<v-col cols="6">
-									<v-select dense elevation="0" label="Select Table" :items="state.tables" item-text="label" item-value="id" v-model="state.order.table_index" />
-								</v-col>
-							</v-row>
-							<v-row>
-								<v-col cols="6">
-									<p class="title">Price</p>
-								</v-col>
-								<v-col cols="4" offset="2">
-									<div class="d-flex justify-end">
-										<p class="subtitle">{{ price }}</p>
-									</div>
-								</v-col>
-							</v-row>
-							<v-row>
-								<v-col cols="12">
-									<v-textarea label="Description" dense outlined clearable full-width v-mode="state.order.description"></v-textarea>
-								</v-col>
-							</v-row>
-							<v-row>
-								<v-col cols="12">
-									<p class="title">Items</p>
-								</v-col>
-							</v-row>
-							<div class="d-flex flex-wrap mt-4">
-								<v-chip dense class="mx-2">Item 1</v-chip>
-								<v-chip dense class="mx-2">Item 1</v-chip>
+		<v-container>
+			<v-row>
+				<v-col cols="6">
+					<v-card>
+						<v-card-title>Selected Items</v-card-title>
+						<v-card-text>
+							<v-chip class="ma-2" color="green" text-color="white" v-for="item in [...new Set(state.selection.items)]" :key="`selected-${item.id}`" @click="deselectItem(item)">
+								<v-avatar left>{{ getSelectionCount(item) }}</v-avatar>
+								{{ item.name }}
+							</v-chip>
+						</v-card-text>
+						<v-card-title>Price</v-card-title>
+						<v-card-subtitle>{{ (price).toFixed(2) }}</v-card-subtitle>
+					</v-card>
+				</v-col>
+				<v-col cols="6">
+					<v-card class="pa-2 px-8">
+						<v-card-text>
+							<v-select dense label="Select Table" outlined :items="state.tables" item-text="label" item-value="table_index" v-model="state.order.table_index" />
+							<v-textarea label="Description" dense outlined clearable auto-grow rows="3" v-model="state.order.description"></v-textarea>
+							<div class="d-flex">
+								<v-spacer></v-spacer>
+								<v-btn small class="mr-4" color="primary" @click="clear">Clear All</v-btn>
+								<v-btn small color="primary" @click="submit">Submit</v-btn>
 							</div>
-							<div class="d-flex justify-end mt-8">
-								<v-btn color="primary">Submit</v-btn>
-							</div>
-						</v-card>
-					</div>
-				</v-container>
-			</v-window-item>
+						</v-card-text>
+					</v-card>
+				</v-col>
+			</v-row>
+			<v-card class="mt-8">
+				<v-card-title>Menu List</v-card-title>
+				<v-card-text>
+					<v-row>
+						<v-col cols="4" class="border-right">
+							<v-list dense>
+								<v-list-group v-for="category in state.category" :key="`category-${category.id}`"
+									v-model="category.active" no-action @click="makecategoryActive(category)">
+									<template v-slot:activator>
+										<v-list-item-icon>
+											<v-chip dark :color="getSelectionCount_category(category) == 0 ? 'grey' : 'green'" small pill>{{ getSelectionCount_category(category) }}</v-chip>
+										</v-list-item-icon>
+										<v-list-item-content>
+											<v-list-item-title v-text="category.name"></v-list-item-title>
+										</v-list-item-content>
+									</template>
 
-			<v-window-item :value="2">
-				<v-card style="max-height: 70vh">
-					<v-toolbar dense class="px-0 mb-3">
-						<v-icon class="blue--text cursor-pointer mr-2" @click="state.window.home">mdi-arrow-left</v-icon>
-						<v-toolbar-title>
-							<v-btn text>{{ category_temp }}</v-btn>
-							<v-icon v-if="subcategory_temp!==null">mdi-chevron-right</v-icon>
-							<v-btn text v-if="subcategory_temp!==null">{{ subcategory_temp }}</v-btn>
-						</v-toolbar-title>
-					</v-toolbar>
-
-					<v-row class="px-5">
-						<v-col cols="4">
-							<div class="d-flex flex-column pa-2 px-3">
-								<p class="title ma-0">Selected Items</p>
-							</div>
+									<v-list-item v-for="subcategory in subcategories(category)" :key="`subcategory-${subcategory.id}`"
+										v-model="subcategory.active" link
+										:class="{ 'blue lighten-2 white--text rounded': isActive(subcategory) }"
+										@click="makeSubcategoryActive(subcategory)">
+										<v-list-item-icon>
+											<v-chip class="pr-5" dark :color="getSelectionCount_subcategory(subcategory) == 0 ? 'grey' : 'green'" small pill>{{ getSelectionCount_subcategory(subcategory) }}</v-chip>
+										</v-list-item-icon>
+										<v-list-item-title v-text="subcategory.name"></v-list-item-title>
+									</v-list-item>
+								</v-list-group>
+							</v-list>
 						</v-col>
 						<v-col cols="8">
-							<v-window v-model="state.subwindow.value">
-								<v-window-item :value="1">
-									<div class="d-flex flex-column">
-										<v-list>
-											<v-list-item-group v-mode="state.subwindow.category">
-												<v-list-item v-for="cat in state.menu.category" :key="`${cat.id}-list`" @click="state.subwindow.subcategoryView(cat)">
-													<v-list-item-title>
-														{{ cat.name }}
-													</v-list-item-title>
-												</v-list-item>
-											</v-list-item-group>
-										</v-list>
-									</div>
-								</v-window-item>
-								<v-window-item :value="2">
-									<v-list>
-										<v-list-item-group>
-											<v-list-item v-for="sub in filteredSubcategory" :key="`${sub.id}-sub`" @click="state.subwindow.itemView(sub)">
-												<v-list-item-title>
-													{{ sub.name }}
-												</v-list-item-title>
-											</v-list-item>
-										</v-list-item-group>
-									</v-list>
-								</v-window-item>
-								<v-window-item :value="3">
-									<v-list>
-										<v-list-item-group>
-											<v-list-item v-for="item in filteredItem" :key="`${item.id}-item`" @click="state.order.add(item)">
-												<v-list-item-title>
-													{{ item.name }}
-												</v-list-item-title>
-											</v-list-item>
-										</v-list-item-group>
-									</v-list>
-								</v-window-item>
-							</v-window>
+							<v-list dense>
+								<v-list-item v-for="item in items" :key="`item-${item.id}`" :disabled="item.available != 1" link
+									two-line @click="selectItem(item)">
+									<template v-slot>
+										<v-list-item-action>
+											<v-chip dark :color="getSelectionCount(item) == 0 ? 'grey' : 'green'" small pill>{{ getSelectionCount(item) }}</v-chip>
+										</v-list-item-action>
+										<v-list-item-content>
+											<v-list-item-title class="text-subtitle-1">{{ item.name }}</v-list-item-title>
+											<v-list-item-subtitle class="text-subtitle-2">{{ item.name }}</v-list-item-subtitle>
+										</v-list-item-content>
+										<v-list-item-action>
+											<p class="ma-0 text-subtitle-1">{{ Number(item.price).toFixed(2) }}</p>
+										</v-list-item-action>
+									</template>
+								</v-list-item>
+							</v-list>
 						</v-col>
 					</v-row>
-				</v-card>
-			</v-window-item>
-		</v-window>
-		
-		
+				</v-card-text>
+			</v-card>
+			<v-container>
+			</v-container>
+		</v-container>
+
 	</div>
 </template>
 
@@ -236,7 +230,14 @@ p.title {
 	font-weight: bold;
 	margin: 0;
 }
+
 p.subtitle {
 	text-align: right;
+}
+
+.border-right {
+	border-right: 1px solid #0002;
+	margin-bottom: 1.5rem;
+	padding-right: 2.5rem;
 }
 </style>

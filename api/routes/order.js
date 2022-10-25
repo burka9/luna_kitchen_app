@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { query } from '..'
+import { query, resolve } from '..'
 
 
 const router = Router()
@@ -59,18 +59,9 @@ router.route('/')
 	})
 
 	.post((req, res) => { // create new order
-		let { description, id, items, issued, table } = req.body
+		let { description, user_id, items, issued, table_index } = req.body
 
-		query(`INSERT INTO orders VALUES (
-			NULL, "${JSON.stringify(items)}", ${id}, ${table}, "${issued}", NULL, NULL, "pending", "${description}"
-		)`)
-			.then(result => res.json({
-				success: result.affectedRows > 0 || result.changedRows > 0
-			}))
-			.catch(err => {
-				console.log(err)
-				res.sendStatus(500)
-			})
+		resolve(`INSERT INTO orders VALUES (NULL, "${JSON.stringify(items)}", ${user_id}, ${table_index}, "${issued}", NULL, NULL, "pending", "${description}")`, res)
 	})
 
 router.route('/done')

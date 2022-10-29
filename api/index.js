@@ -1,4 +1,5 @@
 require('dotenv').config()
+import http from 'http'
 import express from 'express'
 import mysql from 'mysql'
 import socket from 'socket.io'
@@ -6,8 +7,6 @@ import routes from './routes'
 import database from './database'
 import handle_socket from './socket'
 
-let server = null
-let io = null
 
 const { DB_USER, DB_PASSWORD, DB_HOST } = process.env
 
@@ -23,15 +22,8 @@ app.use(express.urlencoded({ extended: false }))
 app.use(routes)
 
 
-app.all('/init', (req, res) => {
-  if (!server) {
-    server = res.socket.server
-    io = socket(server)
+let server = http.createServer(app)
 
-    io.on('connection', socket => handle_socket(socket))
-  }
-  res.json({ msg: 'server is set' })
-})
 
 
 conn.connect(err => {
@@ -40,6 +32,9 @@ conn.connect(err => {
 	database()
 })
 
+export function broadcast(message, data) {
+	io.emit(message, data)
+}
 
 export async function query (sql) {
 	return new Promise((resolve, reject) => {
@@ -51,9 +46,14 @@ export async function query (sql) {
 	})
 }
 
-export function resolve (sql, res) {
+export function resolve (sql, res, callback) {
 	query(sql)
-		.then(result => res.json({ success: result.affectedRows > 0 || result.changedRows > 0 }))
+		.then(result => {
+			res.json({ success: result.affectedRows > 0 || result.changedRows > 0 })
+
+			if ((result.affectedRows > 0 || result.changedRows > 0) && callback)
+				callback()
+		})
 		.catch(err => {
 			console.log(err)
 			res.sendStatus(500)
@@ -62,5 +62,5 @@ export function resolve (sql, res) {
 
 export default {
 	path: '/api',
-	handler: app
+	handler: server
 }

@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios';
-import { finished } from 'stream';
 import { reactive } from 'vue';
+
 
 const CATEGORY = 1
 const SUBCATEGORY = 2
@@ -270,6 +270,7 @@ const deleteItem = () => {
 		.catch(error)
 		.then(() => state.delete.close())
 }
+
 
 
 // fetch data

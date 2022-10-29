@@ -69,7 +69,7 @@ router.route('/done')
 .post((req, res) => {
 	let { id } = req.body
 
-	query(`UPDATE orders SET status='archived', order_archive_date="${new Date().getTime}" WHERE id=${id}`)
+	query(`UPDATE orders SET status='archived', order_archive_date="${new Date().getTime()}" WHERE id=${id}`)
 		.then(result => {
 			generateXml(id)
 			res.json({ success: result.affectedRows > 0 || result.changedRows > 0 })
@@ -84,7 +84,7 @@ router.route('/finish')
 	.post((req, res) => {
 		let { id } = req.body
 
-		query(`UPDATE orders SET status='finished', order_done_date="${new Date().getTime}" WHERE id=${id}`)
+		query(`UPDATE orders SET status='finished', order_done_date="${new Date().getTime()}" WHERE id=${id}`)
 			.then(result => {
 				res.json({
 					success: result.affectedRows > 0 || result.changedRows > 0

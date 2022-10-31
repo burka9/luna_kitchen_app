@@ -2,49 +2,51 @@
 import axios from 'axios';
 import { reactive } from 'vue';
 
-	const state = reactive({
-		tables: [],
-		adding: false,
-	})
+const props = defineProps({
+	api: String,
+})
 
-	const addTable = () => {
-		state.adding = true
-		axios.post('/api/table')
-			.then(result => {
-				if (result.data.success) fetch_list()
-			})
-			.catch(err => console.log(err))
-			.then(() => state.adding = false)
-	}
+const state = reactive({
+	tables: [],
+	adding: false,
+})
 
-	const removeTable = table => {
-		axios.delete('/api/table', { data: table })
-			.then(result => {
-				if (result.data.success) fetch_list()
-			})
-			.catch(err => console.log(err))
-	}
+const addTable = () => {
+	state.adding = true
+	axios.post(`${props.api}/api/table`)
+		.then(result => {
+			if (result.data.success) fetch_list()
+		})
+		.catch(err => console.log(err))
+		.then(() => state.adding = false)
+}
 
-	const fetch_list = () => {
-		axios.get('/api/table?sort=true')
-			.then(result => {
-				if (result.data.success) {
-					state.tables = result.data.list
-				}
-			})
-			.catch(err => console.log(err))
-	}
+const removeTable = table => {
+	axios.delete(`${props.api}/api/table`, { data: table })
+		.then(result => {
+			if (result.data.success) fetch_list()
+		})
+		.catch(err => console.log(err))
+}
 
-	fetch_list()
+const fetch_list = () => {
+	axios.get(`${props.api}/api/table?sort=true`)
+		.then(result => {
+			if (result.data.success) {
+				state.tables = result.data.list
+			}
+		})
+		.catch(err => console.log(err))
+}
+
+fetch_list()
 </script>
 
 <template>
 	<v-container fluid>
 		<v-row align="center">
 			<v-col cols="12" sm="6" md="4" lg="3" v-for="(table, index) in state.tables" :key="index">
-				<v-card
-					elevation="3"
-				>
+				<v-card elevation="3">
 					<v-card-title>Table {{ table.table_index }}</v-card-title>
 					<v-card-actions>
 						<v-btn color="error" depressed dense @click="removeTable(table)">Remove</v-btn>

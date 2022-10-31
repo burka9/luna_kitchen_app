@@ -1,5 +1,6 @@
 <script>
 	import axios from 'axios';
+	import { io } from 'socket.io-client';
 	import UserAccounts from '../components/UserAccounts.vue';
 	import MenuItems from '../components/MenuItems.vue';
 	import Tables from '../components/Tables.vue';
@@ -13,6 +14,8 @@
 		components: { UserAccounts, MenuItems, Tables, Orders },
 
 		data: () => ({
+			api: 'http://192.168.1.2:3000',
+			socket: null,
 			types: ['/admin', '/waiter', '/kitchen'],
 			typeIndex: -1,
 			name: '',
@@ -20,8 +23,8 @@
 			tab: null,
 			tabs: [
 				{
-					header: ['user accounts', 'menu items', 'tables'],
-					component: [ UserAccounts, MenuItems, Tables ],
+					header: ['menu items', 'user accounts', 'tables'],
+					component: [ MenuItems, UserAccounts, Tables ],
 				},
 				{
 					header: ['New', 'Pending', 'finished'],
@@ -42,10 +45,24 @@
 		created() {
 			this.typeIndex = this.types.findIndex(p => p.toLowerCase() == this.$route.path.toLowerCase())
 		},
-		mounted() {
+		mounted() {			
+			// socket connection
+			this.socket = io(this.api)
+			this.socket.on('connect', () => console.log(`socket connected on ${this.socket.id}`))
+			this.socket.on('order_finished', data => { // notification for finished order
+				try {
+					let { id } = JSON.parse(localStorage.order_data)
+
+					if (data.user_id == id) {
+						document.getElementById('audio').play()
+						window.navigator.vibrate(vibrationPattern)
+					}
+				} catch {}
+			})
+			
 			try { // resume session
 				let { type, username, name } = JSON.parse(localStorage.order_data)
-				axios.get(`/api/user?type=${type}&username=${username}`)
+				axios.get(`${this.api}/api/user?type=${type}&username=${username}`)
 					.then(result => {
 						if (!result.data.success) return this.destroy()
 						this.name = name
@@ -61,9 +78,10 @@
 
 <template>
 	<div v-if="typeIndex > -1">
+		<audio id="audio" src="http://localhost:3000/notification.wav" hidden></audio>
 		<v-app>
 			<v-app-bar dense dark elevation="1" max-height="auto" app>
-				<v-app-bar-nav-icon @click="drawer = false"></v-app-bar-nav-icon>
+				<v-app-bar-nav-icon @click="drawer = false" v-if="false"></v-app-bar-nav-icon>
 				<v-app-bar-title>{{ name }}</v-app-bar-title>
 				<v-spacer></v-spacer>
 				<v-btn text @click="destroy" small>
@@ -86,7 +104,7 @@
 			<v-main class="grey lighten-3">
 				<v-tabs-items v-model="tab">
 					<v-tab-item v-for="(item, i) in tabs[typeIndex].component" :key="`tab-item-${i}`">
-						<component :is="item" class="grey lighten-3 pa-0 pa-sm-6 pa-md-12" />
+						<component :is="item" class="grey lighten-3 pa-0 pa-sm-6 pa-md-12" :api="api" :socket="socket" />
 					</v-tab-item>
 				</v-tabs-items>
 			</v-main>

@@ -2,6 +2,8 @@
 import axios from 'axios';
 import { reactive, onMounted, ref } from 'vue';
 
+const api = 'http://192.168.1.2:3000'
+
 const state = reactive({
 	username: '',
 	password: '',
@@ -27,7 +29,7 @@ const form = ref(null)
 const login = () => {
 	if (form.value.validate()) {
 		state.disabled = true
-		axios.post('/api/session', {
+		axios.post(`${api}/api/session`, {
 			username: state.username,
 			password: state.password
 		})
@@ -51,7 +53,7 @@ const login = () => {
 onMounted(() => {
 	try { // resume session
 		let { type, username } = JSON.parse(localStorage.order_data)
-		axios.get(`/api/user?type=${type}&username=${username}`)
+		axios.get(`${api}/api/user?type=${type}&username=${username}`)
 			.then(result => {
 				if (result.data.success) location.assign(type)
 				else {

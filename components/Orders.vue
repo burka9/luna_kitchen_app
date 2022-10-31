@@ -1,6 +1,11 @@
 <script setup>
 	import axios from 'axios';
-	import { reactive } from 'vue';
+	import { reactive, onMounted } from 'vue';
+	
+	const props = defineProps({
+		api: String,
+		socket: Object
+	})
 	
 	const state = reactive({
 		orders: [],
@@ -8,7 +13,7 @@
 	
 	
 	const fetch_list = () => {
-		axios.get(`/api/order?status=pending`)
+		axios.get(`${props.api}/api/order?status=pending`)
 			.then(result => {
 				if (result.data.success)
 					state.orders = result.data.list.map(item => ({
@@ -26,7 +31,7 @@
 	}
 	
 	const finish = item => {
-		axios.post('/api/order/finish', item)
+		axios.post(`${props.api}/api/order/finish`, item)
 			.then(result => {
 				fetch_list()
 				state.panels = []
@@ -42,6 +47,14 @@
 
 	
 	fetch_list()
+
+
+	onMounted(() => {
+		props.socket.on('update_order', () => {
+			console.log('show notification for new order')
+			fetch_list()
+		})
+	})
 	</script>
 	
 	<template>

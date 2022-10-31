@@ -1,6 +1,11 @@
 <script setup>
-import { computed, reactive } from 'vue';
+import { computed, reactive, onMounted } from 'vue';
 import axios from 'axios';
+
+const props = defineProps({
+	api: String,
+	socket: Object
+})
 
 const state = reactive({
 	snackbar: {
@@ -70,6 +75,7 @@ const clear = () => {
 	state.order = {
 		table_index: -1,
 		description: '',
+		user_id: JSON.parse(localStorage.order_data).id
 	},
 	state.selection.items = []
 }
@@ -77,7 +83,7 @@ const clear = () => {
 const submit = () => {
 	if (state.selection.items.length == 0) return
 	// request
-	axios.post('/api/order', {
+	axios.post(`${props.api}/api/order`, {
 		description: state.order.description,
 		user_id: state.order.user_id,
 		table_index: state.order.table_index,
@@ -107,27 +113,30 @@ const init = () => {
 	}
 
 	// get table list
-	axios.get('/api/table')
+	axios.get(`${props.api}/api/table`)
 		.then(result => state.tables = result.data.success ? result.data.list.map(table => ({ ...table, label: `Table ${table.table_index}` })) : [])
 		.catch(err => console.error(err))
 
 	// get category list
-	axios.get('/api/category')
+	axios.get(`${props.api}/api/category`)
 		.then(result => state.category = result.data.success ? result.data.list : [])
 		.catch(err => console.error(err))
 
 	// get subcategory list
-	axios.get('/api/subcategory')
+	axios.get(`${props.api}/api/subcategory`)
 		.then(result => state.subcategory = result.data.success ? result.data.list : [])
 		.catch(err => console.error(err))
 
 	// get item list
-	axios.get('/api/menu-item')
+	axios.get(`${props.api}/api/menu-item`)
 		.then(result => state.items = result.data.success ? result.data.list : [])
 		.catch(err => console.error(err))
 }
 
 init()
+
+onMounted(() => {
+})
 </script>
 
 <template>

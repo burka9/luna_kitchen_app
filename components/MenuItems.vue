@@ -1,12 +1,16 @@
 <script setup>
 import axios from 'axios';
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 
+
+const props = defineProps({
+	api: String,
+	socket: Object,
+})
 
 const CATEGORY = 1
 const SUBCATEGORY = 2
 const ITEM = 3
-
 
 const state = reactive({
 	snackbar: {
@@ -180,7 +184,7 @@ const toggleStatus = item => {
 
 // category functions
 const createNewCategory = () => {
-	axios.post('/api/category', {
+	axios.post(`${props.api}/api/category`, {
 		name: state.dialog.category.name,
 		detail: state.dialog.category.detail
 	})
@@ -189,7 +193,7 @@ const createNewCategory = () => {
 		.then(() => state.dialog.category.close())
 }
 const editCategory = () => {
-	axios.put('/api/category', {
+	axios.put(`${props.api}/api/category`, {
 		id: state.dialog.category.id,
 		name: state.dialog.category.name,
 		detail: state.dialog.category.detail
@@ -199,7 +203,7 @@ const editCategory = () => {
 		.then(() => state.dialog.category.close())
 }
 const deleteCategory = () => {
-	axios.delete('/api/category', { data: { id: state.delete.item.id } })
+	axios.delete(`${props.api}/api/category`, { data: { id: state.delete.item.id } })
 		.then(result => completed(result, 'Category deleted!'))
 		.catch(error)
 		.then(state.delete.close)
@@ -207,7 +211,7 @@ const deleteCategory = () => {
 
 // subcategory functions
 const createNewSubcategory = () => {
-	axios.post('/api/subcategory', {
+	axios.post(`${props.api}/api/subcategory`, {
 		name: state.dialog.category.name,
 		detail: state.dialog.category.detail,
 		category: state.category.id
@@ -217,7 +221,7 @@ const createNewSubcategory = () => {
 		.then(() => state.dialog.category.close())
 }
 const editSubcategory = () => {
-	axios.put('/api/subcategory', {
+	axios.put(`${props.api}/api/subcategory`, {
 		id: state.dialog.category.id,
 		name: state.dialog.category.name,
 		detail: state.dialog.category.detail
@@ -229,7 +233,7 @@ const editSubcategory = () => {
 		.then(() => state.dialog.category.close())
 }
 const deleteSubcategory = () => {
-	axios.delete('/api/subcategory', { data: { id: state.subcategory.item.id } })
+	axios.delete(`${props.api}/api/subcategory`, { data: { id: state.subcategory.item.id } })
 		.then(result => {
 			completed(result, 'Category deleted!')
 			state.subcategory.reset()
@@ -240,7 +244,7 @@ const deleteSubcategory = () => {
 
 // item functions
 const createItem = () => {
-	axios.post('/api/menu-item', {
+	axios.post(`${props.api}/api/menu-item`, {
 		name: state.dialog.item.name,
 		price: state.dialog.item.price,
 		available: state.dialog.item.available,
@@ -252,7 +256,7 @@ const createItem = () => {
 		.then(() => state.dialog.item.close())
 }
 const editItem = () => {
-	axios.put('/api/menu-item', {
+	axios.put(`${props.api}/api/menu-item`, {
 		id: state.dialog.item.id,
 		name: state.dialog.item.name,
 		price: state.dialog.item.price,
@@ -265,7 +269,7 @@ const editItem = () => {
 		.then(() => state.dialog.item.close())
 }
 const deleteItem = () => {
-	axios.delete('/api/menu-item', { data: { id: state.delete.item.id }})
+	axios.delete(`${props.api}/api/menu-item`, { data: { id: state.delete.item.id }})
 		.then(result => completed(result, 'Item deleted!'))
 		.catch(error)
 		.then(() => state.delete.close())
@@ -275,7 +279,7 @@ const deleteItem = () => {
 
 // fetch data
 const fetch_category = () => {
-	axios.get('/api/category')
+	axios.get(`${props.api}/api/category`)
 		.then(result => {
 			if (result.data.success) state.categories = result.data.list.map(cat => ({ ...cat, type: CATEGORY, children: [] }))
 			fetch_subcategory()
@@ -285,7 +289,7 @@ const fetch_category = () => {
 
 const fetch_subcategory = () => {
 	state.categories.forEach(cat => {
-		axios.get(`/api/subcategory?category_id=${cat.id}`)
+		axios.get(`${props.api}/api/subcategory?category_id=${cat.id}`)
 			.then(result => {
 				cat.children = result.data.list.map(child => ({ ...child, type: SUBCATEGORY }))
 				fetch_item()
@@ -296,7 +300,7 @@ const fetch_subcategory = () => {
 
 const fetch_item = filter => {
 	let temp = filter ? Object.keys(filter).map(key => (`${key}=${filter[key]}`)).join('&') : ''
-	axios.get(`/api/menu-item?${temp}`)
+	axios.get(`${props.api}/api/menu-item?${temp}`)
 		.then(result => {
 			if (result.data.success) {
 				state.items = result.data.list.map(item => ({ ...item, type: ITEM }))
@@ -309,6 +313,11 @@ const fetch_item = filter => {
 
 fetch_category()
 
+onMounted(() => {
+	props.socket.on('update_menu', () => {
+		fetch_category()
+	})
+})
 </script>
 	
 <template>

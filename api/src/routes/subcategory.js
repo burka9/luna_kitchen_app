@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { query, resolve } from '..'
+import { updateMenu } from '../socket'
 
 
 const router = Router()
@@ -22,16 +23,16 @@ router.route('/')
 	.post((req, res) => { // create new sub-category
 		let { name, detail, category } = req.body
 		
-		resolve(`INSERT INTO menu_item_subcategory VALUES (NULL, "${name}", "${detail}", ${category});`, res)
+		resolve(`INSERT INTO menu_item_subcategory VALUES (NULL, "${name}", "${detail}", ${category});`, res, updateMenu)
 	})
 
 	.put((req, res) => { // edit a sub-category
 		let { id, name, detail } = req.body
 
-		resolve(`UPDATE menu_item_subcategory SET name="${name}", detail="${detail}" WHERE id=${id}`, res)
+		resolve(`UPDATE menu_item_subcategory SET name="${name}", detail="${detail}" WHERE id=${id}`, res, updateMenu)
 	})
 
-	.delete((req, res) => resolve(`DELETE FROM menu_item_subcategory WHERE id=${req.body.id}`, res))
+	.delete((req, res) => resolve(`DELETE FROM menu_item_subcategory WHERE id=${req.body.id}`, res, updateMenu))
 
 
 

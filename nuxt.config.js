@@ -3,7 +3,8 @@ import colors from 'vuetify/es5/util/colors'
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - Order',
+    // titleTemplate: '%s - Order',
+    titleTemplate: 'The Exclusive',
     title: 'order',
     htmlAttrs: {
       lang: 'en'
@@ -61,11 +62,18 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  },
-  serverMiddleware: {
-    '/api': '~/api'
+    extend(config, ctx) {
+      config.module.rules.push({
+        test: /\.(ogg|mp3|wav|mpe?g)$/i,
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
+      })
+    }
   },
   server: {
-    host: '0.0.0.0'
+    host: '0.0.0.0',
+    port: 8080
   }
 }

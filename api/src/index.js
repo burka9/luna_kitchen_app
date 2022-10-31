@@ -1,6 +1,8 @@
 require('dotenv').config()
 import http from 'http'
+import path from 'path'
 import express from 'express'
+import cors from 'cors'
 import mysql from 'mysql'
 import socket from 'socket.io'
 import routes from './routes'
@@ -17,24 +19,29 @@ const conn = mysql.createConnection({
 })
 
 const app = express()
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.use(routes)
+app.use('/api', routes)
+
+app.use(express.static(path.resolve('assets')))
 
 
 let server = http.createServer(app)
-
+let io = socket(server, {
+	cors: {
+		origin: '*',
+		methods: ['GET', 'POST']
+	}
+})
 
 
 conn.connect(err => {
 	if (err) return console.log(err)
 	console.log('database connected')
 	database()
+	handle_socket(io)
 })
-
-export function broadcast(message, data) {
-	io.emit(message, data)
-}
 
 export async function query (sql) {
 	return new Promise((resolve, reject) => {
@@ -60,7 +67,12 @@ export function resolve (sql, res, callback) {
 		})
 }
 
-export default {
-	path: '/api',
-	handler: server
-}
+
+let host = process.argv[2] || 'localhost'
+let port = process.argv[3] || 3000
+let backlog = process.argv[4] || 1024
+
+
+server.listen(port, host, backlog, () => {
+	console.log(`server started\nhost: ${host}\nport: ${port}\nbacklog: ${backlog}`)
+})

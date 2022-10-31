@@ -1,6 +1,11 @@
 <script setup>
 import axios from 'axios';
-import { reactive, onMounted, } from 'vue';
+import { reactive, onMounted } from 'vue';
+
+const props = defineProps({
+	api: String,
+	socket: Object
+})
 
 const state = reactive({
 	items: []
@@ -13,7 +18,7 @@ const get_id = () => {
 }
 
 const fetch_list = () => {
-	axios.get(`/api/order?id=${get_id()}&status=pending`)
+	axios.get(`${props.api}/api/order?id=${get_id()}&status=pending`)
 		.then(result => {
 			if (result.data.success)
 				state.items = result.data.list.map(item => ({
@@ -39,7 +44,13 @@ const get_title = title => {
 	return title.length>21 ? `${title.substr(0, 20)}...` : title
 }
 
-onMounted(() => fetch_list())
+onMounted(() => {
+	fetch_list()
+	props.socket.on('order_finished', data => {
+		fetch_list()
+	})
+	props.socket.on('update_order', () => fetch_list())
+})
 </script>
 
 <template>

@@ -1,7 +1,12 @@
 <script setup>
 	import axios from 'axios';
-	import { reactive } from 'vue';
+	import { reactive, onMounted } from 'vue';
 	
+	const props = defineProps({
+		api: String,
+		socket: Object
+	})
+
 	const state = reactive({
 		items: [],
 		panels: [],
@@ -14,7 +19,7 @@
 	}
 
 	const markDone = item => {
-		axios.post('/api/order/done', item)
+		axios.post(`${props.api}/api/order/done`, item)
 			.then(result => {
 				fetch_list()
 				state.panels = []
@@ -23,7 +28,7 @@
 	}
 	
 	const fetch_list = () => {
-		axios.get(`/api/order?id=${get_id()}&status=finished`)
+		axios.get(`${props.api}/api/order?id=${get_id()}&status=finished`)
 			.then(result => {
 				if (result.data.success)
 					state.items = result.data.list.map(item => ({
@@ -51,6 +56,13 @@
 	}
 	
 	fetch_list()
+
+	
+	onMounted(() => {
+		props.socket.on('order_finished', data => {
+			fetch_list()
+		})
+	})
 	</script>
 	
 	<template>

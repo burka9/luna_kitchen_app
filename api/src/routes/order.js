@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { query, resolve } from '..'
 import generateXml from '../generate-xml'
+import { notifyWaiter, updateOrder } from '../socket'
 
 
 const router = Router()
@@ -62,38 +63,21 @@ router.route('/')
 	.post((req, res) => { // create new order
 		let { description, user_id, items, issued, table_index } = req.body
 
-		resolve(`INSERT INTO orders VALUES (NULL, "${JSON.stringify(items)}", ${user_id}, ${table_index}, "${issued}", NULL, NULL, "pending", "${description}")`, res)
+		resolve(`INSERT INTO orders VALUES (NULL, "${JSON.stringify(items)}", ${user_id}, ${table_index}, "${issued}", NULL, NULL, "pending", "${description}")`, res, updateOrder)
 	})
 
 router.route('/done')
-.post((req, res) => {
-	let { id } = req.body
-
-	query(`UPDATE orders SET status='archived', order_archive_date="${new Date().getTime()}" WHERE id=${id}`)
-		.then(result => {
-			generateXml(id)
-			res.json({ success: result.affectedRows > 0 || result.changedRows > 0 })
-		})
-		.catch(err => {
-			console.log(err)
-			res.sendStatus(500)
-		})
-})
-
-router.route('/finish')
-	.post((req, res) => {
+	.post((req, res) => { // archive order - from waiter
 		let { id } = req.body
 
-		query(`UPDATE orders SET status='finished', order_done_date="${new Date().getTime()}" WHERE id=${id}`)
-			.then(result => {
-				res.json({
-					success: result.affectedRows > 0 || result.changedRows > 0
-				})
-			})
-			.catch(err => {
-				console.log(err)
-				res.sendStatus(500)
-			})
+		resolve(`UPDATE orders SET status='archived', order_archive_date="${new Date().getTime()}" WHERE id=${id}`, res, () => generateXml(id))
+	})
+
+router.route('/finish')
+	.post((req, res) => { // finish order - from kitchen
+		let { id } = req.body
+
+		resolve(`UPDATE orders SET status='finished', order_done_date="${new Date().getTime()}" WHERE id=${id}`, res, () => notifyWaiter(id))
 	})
 
 export default router

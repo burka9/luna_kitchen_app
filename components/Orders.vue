@@ -60,7 +60,7 @@
 	<template>
 		<v-container fluid>
 			<div class="d-flex flex-wrap">
-				<v-card v-for="order in state.orders" :key="`order-${order.id}`" class=" ma-3" style="max-width: 400px">
+				<v-card v-for="order in state.orders" :key="`order-${order.id}`" class=" ma-3" style="width: 400px">
 					<v-list-item>
 						<v-list-item-content>
 							<v-list-item-title class="text-h5">{{ order.user_name }}'s order'</v-list-item-title>

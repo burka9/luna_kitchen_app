@@ -136,6 +136,7 @@ const init = () => {
 init()
 
 onMounted(() => {
+	props.socket.on('update_menu', () => init())
 })
 </script>
 
@@ -146,9 +147,9 @@ onMounted(() => {
 		</v-snackbar>
 
 		<v-container>
-			<v-row>
-				<v-col cols="6">
-					<v-card>
+			<v-card class="pa-2 px-8">
+				<v-row>
+					<v-col cols="6">
 						<v-card-title>Selected Items</v-card-title>
 						<v-card-text>
 							<v-chip class="ma-2" color="green" text-color="white" v-for="item in [...new Set(state.selection.items)]" :key="`selected-${item.id}`" @click="deselectItem(item)">
@@ -158,10 +159,8 @@ onMounted(() => {
 						</v-card-text>
 						<v-card-title>Price</v-card-title>
 						<v-card-subtitle>{{ (price).toFixed(2) }}</v-card-subtitle>
-					</v-card>
-				</v-col>
-				<v-col cols="6">
-					<v-card class="pa-2 px-8">
+					</v-col>
+					<v-col cols="6">
 						<v-card-text>
 							<v-select dense label="Select Table" outlined :items="state.tables" item-text="label" item-value="table_index" v-model="state.order.table_index" />
 							<v-textarea label="Description" dense outlined clearable auto-grow rows="3" v-model="state.order.description"></v-textarea>
@@ -171,9 +170,9 @@ onMounted(() => {
 								<v-btn small color="primary" @click="submit">Submit</v-btn>
 							</div>
 						</v-card-text>
-					</v-card>
-				</v-col>
-			</v-row>
+					</v-col>
+				</v-row>
+			</v-card>
 			<v-card class="mt-8">
 				<v-card-title>Menu List</v-card-title>
 				<v-card-text>

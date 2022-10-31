@@ -35,17 +35,29 @@
 					component: [ Orders, MenuItems ],
 				}
 			],
+			finishedDialog: {
+				show: false,
+				text: 'You have a completed order!',
+			}
 		}),
 		methods: {
 			destroy() {
 				localStorage.order_data = null
 				location.assign('/')
-			}
+			},
+			changeTab(index) {
+				this.finishedDialog.show = false
+				this.tab = index
+			},
+			showFinished(text) {
+				this.finishedDialog.text = text ? text : 'You have a notification!'
+				this.finishedDialog.show = true
+			},
 		},
 		created() {
 			this.typeIndex = this.types.findIndex(p => p.toLowerCase() == this.$route.path.toLowerCase())
 		},
-		mounted() {			
+		mounted() {
 			// socket connection
 			this.socket = io(this.api)
 			this.socket.on('connect', () => console.log(`socket connected on ${this.socket.id}`))
@@ -54,8 +66,19 @@
 					let { id } = JSON.parse(localStorage.order_data)
 
 					if (data.user_id == id) {
+						this.showFinished('You have a completed order!')
 						document.getElementById('audio').play()
-						window.navigator.vibrate(vibrationPattern)
+						window.navigator.vibrate([350, 350, 350, 350, 350])
+					}
+				} catch {}
+			})
+			this.socket.on('update_order', () => {
+				try {
+					let { type } = JSON.parse(localStorage.order_data)
+
+					if (type == 'kitchen') {
+						document.getElementById('audio').play()
+						window.navigator.vibrate([350, 350, 350, 350, 350])
 					}
 				} catch {}
 			})
@@ -88,6 +111,23 @@
 					<v-icon>mdi-logout</v-icon>
 					Logout
 				</v-btn>
+
+				<v-dialog v-model="finishedDialog.show" width="400px">
+					<v-card class="pa-7">
+						<v-card-text>
+							<div class="d-flex items-center">
+								<!-- <v-icon x-large class="mr-4 green--text">mdi-check</v-icon> -->
+								<p class="text-h5 text-center ma-0">{{ finishedDialog.text }}</p>
+							</div>
+						</v-card-text>
+						<div class="d-flex justify-center grow-1 mt-5">
+							<v-btn text color="green" @click="changeTab(2)">
+								<v-icon class="mr-3">mdi-check</v-icon>
+								View
+							</v-btn>
+						</div>
+					</v-card>
+				</v-dialog>
 
 				<template v-slot:extension>
 					<v-tabs v-model="tab" show-arrows>

@@ -14,7 +14,7 @@
 		components: { UserAccounts, MenuItems, Tables, Orders },
 
 		data: () => ({
-			api: 'http://192.168.1.2:3000',
+			api: 'http://localhost:3000',
 			socket: null,
 			types: ['/admin', '/waiter', '/kitchen'],
 			typeIndex: -1,

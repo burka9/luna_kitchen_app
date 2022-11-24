@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { reactive, onMounted, ref } from 'vue';
 
-const api = 'http://192.168.1.2:3000'
+const api = 'http://localhost:3000'
 
 const state = reactive({
 	username: '',

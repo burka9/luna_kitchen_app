@@ -15,7 +15,7 @@ jobs:
     - uses: mr-smithers-excellent/docker-build-push@v5
       name: Build image and deploy for the api
       with:
-        image: burka/luna_api
+        image: burka9/luna_api
         tags: v0a
         registry: docker.io
         directory: api
@@ -26,7 +26,7 @@ jobs:
     - uses: mr-smithers-excellent/docker-build-push@v5
       name: Build image and deploy for the frontend
       with:
-        image: burka/luna_frontend
+        image: burka9/luna_frontend
         tags: v0a
         registry: docker.io
         directory: frontend

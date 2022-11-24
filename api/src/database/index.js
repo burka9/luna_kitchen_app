@@ -44,7 +44,6 @@ export default async () => {
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
 			price VARCHAR(255) NOT NULL,
-			detail VARCHAR(255),
 			available BOOLEAN,
 			category_id INT(10) UNSIGNED,
 			subcategory_id INT(10) UNSIGNED,

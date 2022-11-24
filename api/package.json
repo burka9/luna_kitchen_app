@@ -7,6 +7,7 @@
     "dev-build": "babel-node src/index.js",
     "dev": "nodemon --exec \"npm run dev-build\"",
     "start": "node dist/index.js",
+    "build": "babel -d dist/ src/",
     "prestart": "npm run build"
   },
   "keywords": [],

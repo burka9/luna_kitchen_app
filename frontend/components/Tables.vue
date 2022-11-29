@@ -45,9 +45,8 @@ const fetch_list = () => {
 	axios.get(`${props.api}/api/table?sort=true`)
 		.then(result => {
 			if (result.data.success) {
-				console.log(result.data.list)
 				state.tables = result.data.list
-				fetch_orders()
+				// fetch_orders()
 			}
 		})
 		.catch(err => console.log(err))
@@ -61,7 +60,11 @@ fetch_list()
 		<v-row align="center">
 			<v-col cols="12" sm="6" md="4" lg="3" v-for="(table, index) in state.tables" :key="index">
 				<v-card elevation="3">
-					<v-card-text>
+					<v-card-title class="text-h6">Table {{ table.table_index }}</v-card-title>
+					<v-card-actions>
+						<v-btn color="error" depressed small dense @click="removeTable(table)">Remove</v-btn>
+					</v-card-actions>
+					<!-- <v-card-text>
 						<v-row>
 							<v-col cols="12" md="4">
 								<p class="text-h6">Table {{ table.table_index }}</p>
@@ -72,7 +75,7 @@ fetch_list()
 								<p><b>Orders:</b> {{ table.order.items.map(item => item.name).join(', ') }}</p>
 							</v-col>
 						</v-row>
-					</v-card-text>
+					</v-card-text> -->
 				</v-card>
 			</v-col>
 			<v-col cols="12" sm="6" md="4" lg="3" align="center" fill-height>

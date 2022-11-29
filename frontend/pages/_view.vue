@@ -15,6 +15,7 @@
 
 		data: () => ({
 			api: 'http://localhost:3000',
+			apiPort: 3000,
 			socket: null,
 			types: ['/admin', '/waiter', '/kitchen'],
 			typeIndex: -1,
@@ -58,6 +59,9 @@
 			this.typeIndex = this.types.findIndex(p => p.toLowerCase() == this.$route.path.toLowerCase())
 		},
 		mounted() {
+			// set api
+			this.api = `${location.protocol}//${location.hostname}:${this.apiPort}`
+
 			// socket connection
 			this.socket = io(this.api)
 			this.socket.on('connect', () => console.log(`socket connected on ${this.socket.id}`))

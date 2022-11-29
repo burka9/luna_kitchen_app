@@ -3,7 +3,6 @@ import axios from 'axios';
 import { reactive, onMounted, ref } from 'vue';
 
 let api = 'http://localhost:3000'
-const apiPort = 3000
 
 const state = reactive({
 	username: '',
@@ -52,7 +51,8 @@ const login = () => {
 }
 
 onMounted(() => {
-	api = `${location.protocol}//${location.hostname}:${apiPort}`
+	if (location.hostname != 'localhost')
+		api = `${location.protocol}//${location.hostname}`
 	try { // resume session
 		let { type, username } = JSON.parse(localStorage.order_data)
 		axios.get(`${api}/api/user?type=${type}&username=${username}`)

@@ -15,7 +15,6 @@
 
 		data: () => ({
 			api: 'http://localhost:3000',
-			apiPort: 3000,
 			socket: null,
 			types: ['/admin', '/waiter', '/kitchen'],
 			typeIndex: -1,
@@ -60,7 +59,8 @@
 		},
 		mounted() {
 			// set api
-			this.api = `${location.protocol}//${location.hostname}:${this.apiPort}`
+			if (location.hostname != 'localhost')
+				this.api = `${location.protocol}//${location.hostname}`
 
 			// socket connection
 			this.socket = io(this.api)

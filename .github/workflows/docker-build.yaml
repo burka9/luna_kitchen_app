@@ -16,7 +16,7 @@ jobs:
       name: Build image and deploy for the api
       with:
         image: burka9/luna_api
-        tags: v0a
+        tags: v1a
         registry: docker.io
         directory: api
         dockerfile: api/Dockerfile
@@ -27,7 +27,7 @@ jobs:
       name: Build image and deploy for the frontend
       with:
         image: burka9/luna_frontend
-        tags: v0a
+        tags: v1a
         registry: docker.io
         directory: frontend
         dockerfile: frontend/Dockerfile

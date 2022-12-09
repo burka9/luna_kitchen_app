@@ -92,5 +92,6 @@ sw.*
 
 # generated xml files
 api/xml
+XML
 
 menu_item.sql

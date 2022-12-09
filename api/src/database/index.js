@@ -1,5 +1,6 @@
 require('dotenv').config()
 import { query } from ".."
+import generateXml from "../generate-xml"
 
 export default async () => {
 	console.log('init db')
@@ -67,6 +68,7 @@ export default async () => {
 			description VARCHAR(255)
 		)`)
 		console.log('tables initialized')
+		generateXml(1)
 	} catch(e) {
 		console.log(e)
 		console.log('error creating tables')

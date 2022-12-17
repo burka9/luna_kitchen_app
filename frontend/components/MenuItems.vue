@@ -1,7 +1,11 @@
 <script setup>
 import axios from 'axios';
-import { reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 
+const requiredRule = [val => !!val || 'Required Field!']
+
+const itemForm = ref(null)
+const categoryForm = ref(null)
 
 const props = defineProps({
 	api: String,
@@ -72,6 +76,7 @@ const state = reactive({
 	subcategory: {
 		headers: [
 			{ text: 'No', value: 'no' },
+			{ text: 'Maraki ID', value: 'maraki_id' },
 			{ text: 'Item Name', value: 'name' },
 			{ text: 'Price', value: 'price' },
 			{ text: 'Status', value: 'available' },
@@ -105,13 +110,14 @@ const state = reactive({
 			detail: '',
 			editing: false,
 			toggle: item => {
+				if (categoryForm.value && categoryForm.value.reset) categoryForm.value.reset()
 				state.dialog.category.show = true
 				state.dialog.category.editing = false
 				if (item) {
 					state.dialog.category.editing = true
 					state.dialog.category.id = item.id
 					state.dialog.category.name = item.name
-					state.dialog.category.detail = item.detail
+					state.dialog.category.detail = item.detail ? item.detail : ''
 				}
 			},
 			close: () => {
@@ -120,37 +126,49 @@ const state = reactive({
 				state.dialog.category.detail = ''
 				state.dialog.category.show = false
 			},
-			save: () => state.categorySection
-				? (state.dialog.category.editing ? editCategory() : createNewCategory())
-				: (state.dialog.category.editing ? editSubcategory() : createNewSubcategory())
+			save: () => {
+				if (categoryForm.value.validate())
+					state.categorySection
+					? (state.dialog.category.editing ? editCategory() : createNewCategory())
+					: (state.dialog.category.editing ? editSubcategory() : createNewSubcategory())
+			}
 		},
 		item: {
 			show: false,
 			id: -1,
+			maraki_id: '',
 			name: '',
+			detail: '',
 			price: '',
 			available: 1,
 			editing: false,
 			toggle: item => {
+				if (itemForm.value && itemForm.value.reset) itemForm.value.reset()
 				state.dialog.item.show = true
 				state.dialog.item.editing = false
 				if (item) {
 					state.dialog.item.editing = true
 					state.dialog.item.id = item.id
+					state.dialog.item.maraki_id = item.maraki_id
 					state.dialog.item.name = item.name
+					state.dialog.item.detail = item.detail
 					state.dialog.item.price = item.price
-					state.dialog.item.available = item.available
+					state.dialog.item.available = item.available ? 1 : 0
 				}
 			},
 			close: () => {
 				state.dialog.item.id = -1
+				state.dialog.item.maraki_id = ''
 				state.dialog.item.name = ''
+				state.dialog.item.detail = ''
 				state.dialog.item.price = ''
 				state.dialog.item.available = 1
 				state.dialog.item.editing = false
 				state.dialog.item.show = false
 			},
-			save: () => state.dialog.item.editing ? editItem() : createItem()
+			save: () => {
+				state.dialog.item.editing ? editItem() : createItem()
+			}
 		},
 	},
 })
@@ -167,26 +185,31 @@ const error = err => {
 	console.error(err)
 }
 const udpateCategorySection = () => {
-	state.category = state.categories.find(cat => cat.id === state.category.id)
+	state.category = state.categories.find(cat => {
+		if (cat.id)
+		return cat.id === state.category.id
+	})
 	if (state.subcategory.item.id) state.subcategory.update()
 }
 
 const toggleStatus = item => {
 	state.dialog.item.id = item.id
+	state.dialog.item.maraki_id = item.maraki_id
 	state.dialog.item.name = item.name
+	state.dialog.item.detail = item.detail
 	state.dialog.item.price = item.price
 	state.dialog.item.available = !item.available
 	state.dialog.item.category_id = item.category_id
 	state.dialog.item.subcategory_id = item.subcategory_id
 	state.snackbar.override = true
-	editItem()
+	editItem(true)
 }
 
 // category functions
 const createNewCategory = () => {
 	axios.post(`${props.api}/api/category`, {
 		name: state.dialog.category.name,
-		detail: state.dialog.category.detail
+		detail: state.dialog.category.detail ? state.dialog.category.detail : ''
 	})
 		.then(result => completed(result, 'Category created!'))
 		.catch(error)
@@ -213,7 +236,7 @@ const deleteCategory = () => {
 const createNewSubcategory = () => {
 	axios.post(`${props.api}/api/subcategory`, {
 		name: state.dialog.category.name,
-		detail: state.dialog.category.detail,
+		detail: state.dialog.category.detail ? state.dialog.category.detail : '',
 		category: state.category.id
 	})
 		.then(result => completed(result, 'Subcategory created!'))
@@ -244,29 +267,35 @@ const deleteSubcategory = () => {
 
 // item functions
 const createItem = () => {
-	axios.post(`${props.api}/api/menu-item`, {
-		name: state.dialog.item.name,
-		price: state.dialog.item.price,
-		available: state.dialog.item.available,
-		category_id: state.category.id,
-		subcategory_id: state.subcategory.item.id,
-	})
-		.then(result => completed(result, 'Item created!'))
-		.catch(error)
-		.then(() => state.dialog.item.close())
+	if (itemForm.value.validate())
+		axios.post(`${props.api}/api/menu-item`, {
+			maraki_id: state.dialog.item.maraki_id,
+			name: state.dialog.item.name,
+			detail: state.dialog.item.detail,
+			price: state.dialog.item.price,
+			available: state.dialog.item.available,
+			category_id: state.category.id,
+			subcategory_id: state.subcategory.item.id,
+		})
+			.then(result => completed(result, 'Item created!'))
+			.catch(error)
+			.then(() => state.dialog.item.close())
 }
-const editItem = () => {
-	axios.put(`${props.api}/api/menu-item`, {
-		id: state.dialog.item.id,
-		name: state.dialog.item.name,
-		price: state.dialog.item.price,
-		available: state.dialog.item.available,
-		category_id: state.category.id,
-		subcategory_id: state.subcategory.item.id,
-	})
-		.then(result => completed(result, 'Item edited!'))
-		.catch(error)
-		.then(() => state.dialog.item.close())
+const editItem = (availableToggle = false) => {
+	if ((itemForm.value && itemForm.value.validate && itemForm.value.validate()) || availableToggle)
+		axios.put(`${props.api}/api/menu-item`, {
+			id: state.dialog.item.id,
+			maraki_id: state.dialog.item.maraki_id,
+			name: state.dialog.item.name,
+			detail: state.dialog.item.detail,
+			price: state.dialog.item.price,
+			available: state.dialog.item.available,
+			category_id: state.category.id,
+			subcategory_id: state.subcategory.item.id,
+		})
+			.then(result => completed(result, 'Item edited!'))
+			.catch(error)
+			.then(() => state.dialog.item.close())
 }
 const deleteItem = () => {
 	axios.delete(`${props.api}/api/menu-item`, { data: { id: state.delete.item.id }})
@@ -343,10 +372,14 @@ onMounted(() => {
 
 		<v-dialog v-model="state.dialog.category.show" width="350px">
 			<v-card>
-				<v-card-title>{{ state.dialog.category.editing ? 'Edit Category' : 'New Category' }}</v-card-title>
+				<v-card-title>{{
+					state.dialog.category.editing
+					? `Edit ${state.categorySection ? 'Category' : 'Subcategory'}`
+					: `New ${state.categorySection ? 'Category' : 'Subcategory'}`
+				}}</v-card-title>
 				<v-card-text>
 					<v-form ref="categoryForm">
-						<v-text-field label="Name" v-model="state.dialog.category.name"></v-text-field>
+						<v-text-field label="Name" :rules="requiredRule" v-model="state.dialog.category.name"></v-text-field>
 						<v-text-field label="Detail" v-model="state.dialog.category.detail"></v-text-field>
 					</v-form>
 				</v-card-text>
@@ -365,14 +398,20 @@ onMounted(() => {
 				<v-card-text>
 					<v-form ref="itemForm">
 						<v-row>
-							<v-col cols="12">
-								<v-text-field label="Name" v-model="state.dialog.item.name"></v-text-field>
+							<v-col cols="4">
+								<v-text-field label="Maraki ID" required :rules="requiredRule" v-model="state.dialog.item.maraki_id"></v-text-field>
+							</v-col>
+							<v-col cols="8">
+								<v-text-field label="Name" required :rules="requiredRule" v-model="state.dialog.item.name"></v-text-field>
 							</v-col>
 							<v-col cols="4">
-								<v-text-field label="Price" type="number" v-model="state.dialog.item.price"></v-text-field>
+								<v-text-field label="Price" type="number" required :rules="requiredRule" v-model="state.dialog.item.price"></v-text-field>
 							</v-col>
 							<v-col cols="8">
 								<v-select label="Status" :items="state.selectItems" v-model="state.dialog.item.available"></v-select>
+							</v-col>
+							<v-col cols="12">
+								<v-text-field label="Detail" v-model="state.dialog.item.detail"></v-text-field>
 							</v-col>
 						</v-row>
 					</v-form>

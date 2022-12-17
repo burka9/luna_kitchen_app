@@ -1,6 +1,6 @@
 require('dotenv').config()
 import { query } from ".."
-import generateXml from "../generate-xml"
+// import generateXml from "../generate-xml"
 
 export default async () => {
 	console.log('init db')
@@ -43,7 +43,9 @@ export default async () => {
 		)`)
 		await query(`CREATE TABLE IF NOT EXISTS menu_item (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			maraki_id INT(10) UNSIGNED NOT NULL,
 			name VARCHAR(255) NOT NULL,
+			detail VARCHAR(255),
 			price VARCHAR(255) NOT NULL,
 			available BOOLEAN,
 			category_id INT(10) UNSIGNED,
@@ -54,21 +56,23 @@ export default async () => {
 		await query(`CREATE TABLE IF NOT EXISTS tables (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			name VARCHAR(16),
-			table_index INT(10)
+			table_index INT(10),
+			current_order_id INT(10)
 		)`)
 		await query(`CREATE TABLE IF NOT EXISTS orders (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			menu_items VARCHAR(255) NOT NULL,
 			user_id INT(10) NOT NULL,
 			table_index INT(10),
-			order_issued_date VARCHAR(32),
-			order_done_date VARCHAR(32),
-			order_archive_date VARCHAR(32),
-			status VARCHAR(32),
+			order_issued_date VARCHAR(255),
+			order_cancel_date VARCHAR(255),
+			order_done_date VARCHAR(255),
+			order_archive_date VARCHAR(255),
+			status VARCHAR(255),
 			description VARCHAR(255)
 		)`)
 		console.log('tables initialized')
-		generateXml(1)
+		// generateXml(2)
 	} catch(e) {
 		console.log(e)
 		console.log('error creating tables')

@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { query } from '..'
+import { updateTable } from '../socket'
 
 
 const router = Router()
@@ -24,11 +25,14 @@ router.route('/')
 			.then(result => {
 				while (result.find(item => item.table_index==index))
 					index++
-				return query(`INSERT INTO tables VALUES (NULL, "Table", ${index})`)
+				return query(`INSERT INTO tables VALUES (NULL, "Table", ${index}, NULL)`)
 			})
-			.then(result => res.json({
-				success: result.affectedRows > 0 || result.changedRows > 0
-			}))
+			.then(result => {
+				updateTable()
+				res.json({
+					success: result.affectedRows > 0 || result.changedRows > 0
+				})
+			})
 			.catch(err => {
 				console.log(err)
 				res.sendStatus(500)

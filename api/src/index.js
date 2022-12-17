@@ -53,13 +53,13 @@ export async function query (sql) {
 	})
 }
 
-export function resolve (sql, res, callback) {
+export function resolve (sql, res, callback, args) {
 	query(sql)
-		.then(result => {
+		.then(async result => {
 			res.json({ success: result.affectedRows > 0 || result.changedRows > 0 })
 
 			if ((result.affectedRows > 0 || result.changedRows > 0) && callback)
-				callback()
+				callback(await query(`SELECT LAST_INSERT_ID()`), args)
 		})
 		.catch(err => {
 			console.log(err)

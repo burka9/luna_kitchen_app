@@ -1,6 +1,10 @@
 <script setup>
-import { computed, reactive, onMounted } from 'vue';
+import { ref, computed, reactive, onMounted } from 'vue';
 import axios from 'axios';
+
+const requiredRule = [val => !!val || 'Required Value!' ]
+
+const newOrderForm = ref(null)
 
 const props = defineProps({
 	api: String,
@@ -78,30 +82,36 @@ const clear = () => {
 		user_id: JSON.parse(localStorage.order_data).id
 	},
 	state.selection.items = []
+	if (newOrderForm.value && newOrderForm.value.reset) newOrderForm.value.reset()
 }
 
 const submit = () => {
-	if (state.selection.items.length == 0) return
-	// request
-	axios.post(`${props.api}/api/order`, {
-		description: state.order.description,
-		user_id: state.order.user_id,
-		table_index: state.order.table_index,
-		items: state.selection.items.map(item => item.id),
-		issued: new Date().getTime(),
-	})
-		.then(result => {
-			if (result.data.success) return state.snackbar.show('Order sent!', 'primary')
-			
-			state.snackbar.show('Something went wrong!')
+	if (newOrderForm.value.validate()) {
+		if (state.selection.items.length == 0) return
+		axios.post(`${props.api}/api/order`, {
+			description: state.order.description,
+			user_id: state.order.user_id,
+			table_index: state.order.table_index,
+			items: state.selection.items.map(item => item.id),
+			issued: new Date().getTime(),
 		})
-		.catch(err => {
-			console.error(err)
-			state.snackbar.show('Something went wrong!')
-		})
-		.then(clear)
+			.then(result => {
+				if (result.data.success) return state.snackbar.show('Order sent!', 'primary')
+				state.snackbar.show('Something went wrong!')
+			})
+			.catch(err => {
+				console.error(err)
+				state.snackbar.show('Something went wrong!')
+			})
+			.then(clear)
+		}
 }
 
+const getTableList = () => {
+	axios.get(`${props.api}/api/table`)
+		.then(result => state.tables = result.data.success ? result.data.list.map(table => ({ ...table, label: `Table ${table.table_index}` })) : [])
+		.catch(err => console.error(err))
+}
 
 const init = () => {
 	try {
@@ -113,9 +123,7 @@ const init = () => {
 	}
 
 	// get table list
-	axios.get(`${props.api}/api/table`)
-		.then(result => state.tables = result.data.success ? result.data.list.map(table => ({ ...table, label: `Table ${table.table_index}` })) : [])
-		.catch(err => console.error(err))
+	getTableList()
 
 	// get category list
 	axios.get(`${props.api}/api/category`)
@@ -135,8 +143,14 @@ const init = () => {
 
 init()
 
+const availableTables = computed(() => {
+	return state.tables.map(table => table.current_order_id == null ? table : undefined)
+})
+
 onMounted(() => {
+	if (newOrderForm.value && newOrderForm.value.reset) newOrderForm.value.reset()
 	props.socket.on('update_menu', () => init())
+	props.socket.on('update_table', () => getTableList())
 })
 </script>
 
@@ -148,30 +162,32 @@ onMounted(() => {
 
 		<v-container>
 			<v-card class="pa-2 px-8">
-				<v-row>
-					<v-col cols="6">
-						<v-card-title>Selected Items</v-card-title>
-						<v-card-text>
-							<v-chip class="ma-2" color="green" text-color="white" v-for="item in [...new Set(state.selection.items)]" :key="`selected-${item.id}`" @click="deselectItem(item)">
-								<v-avatar left>{{ getSelectionCount(item) }}</v-avatar>
-								{{ item.name }}
-							</v-chip>
-						</v-card-text>
-						<v-card-title>Price</v-card-title>
-						<v-card-subtitle>{{ (price).toFixed(2) }}</v-card-subtitle>
-					</v-col>
-					<v-col cols="6">
-						<v-card-text>
-							<v-select dense label="Select Table" outlined :items="state.tables" item-text="label" item-value="table_index" v-model="state.order.table_index" />
-							<v-textarea label="Description" dense outlined clearable auto-grow rows="3" v-model="state.order.description"></v-textarea>
-							<div class="d-flex">
-								<v-spacer></v-spacer>
-								<v-btn small class="mr-4" color="primary" @click="clear">Clear All</v-btn>
-								<v-btn small color="primary" @click="submit">Submit</v-btn>
-							</div>
-						</v-card-text>
-					</v-col>
-				</v-row>
+				<v-form ref="newOrderForm">
+					<v-row>
+						<v-col cols="6">
+							<v-card-title>Selected Items</v-card-title>
+							<v-card-text>
+								<v-chip class="ma-2" color="green" text-color="white" v-for="item in [...new Set(state.selection.items)]" :key="`selected-${item.id}`" @click="deselectItem(item)">
+									<v-avatar left>{{ getSelectionCount(item) }}</v-avatar>
+									{{ item.name }}
+								</v-chip>
+							</v-card-text>
+							<v-card-title>Price</v-card-title>
+							<v-card-subtitle>{{ (price).toFixed(2) }}</v-card-subtitle>
+						</v-col>
+						<v-col cols="6">
+							<v-card-text>
+								<v-select dense label="Select Table" outlined :rules="requiredRule" :items="availableTables" item-text="label" item-value="table_index" v-model="state.order.table_index" />
+								<v-textarea label="Description" dense outlined clearable auto-grow rows="3" v-model="state.order.description"></v-textarea>
+								<div class="d-flex">
+									<v-spacer></v-spacer>
+									<v-btn small class="mr-4" color="primary" @click="clear">Clear All</v-btn>
+									<v-btn small color="primary" @click="submit">Submit</v-btn>
+								</div>
+							</v-card-text>
+						</v-col>
+					</v-row>
+				</v-form>
 			</v-card>
 			<v-card class="mt-8">
 				<v-card-title>Menu List</v-card-title>

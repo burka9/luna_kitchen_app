@@ -24,15 +24,15 @@ router.route('/')
 	})
 
 	.post((req, res) => { // create new menu item
-		let { name, price, available, category_id, subcategory_id } = req.body
+		let { maraki_id, name, detail, price, available, category_id, subcategory_id } = req.body
 
-		resolve(`INSERT INTO menu_item VALUES (NULL, "${name}", "${price}", ${available}, ${category_id}, ${subcategory_id})`, res, updateMenu)
+		resolve(`INSERT INTO menu_item VALUES (NULL, ${maraki_id}, "${name}", "${detail}", "${price}", ${available}, ${category_id}, ${subcategory_id})`, res, updateMenu)
 	})
 
 	.put((req, res) => { // edit menu item
-		let { id, name, price, available } = req.body
+		let { id, maraki_id, name, detail, price, available } = req.body
 
-		resolve(`UPDATE menu_item SET name="${name}", price="${price}", available=${available} WHERE id=${id}`, res, updateMenu)
+		resolve(`UPDATE menu_item SET maraki_id=${maraki_id}, name="${name}", detail="${detail}", price="${price}", available=${available} WHERE id=${id}`, res, updateMenu)
 	})
 
 	.delete((req, res) => resolve(`DELETE FROM menu_item WHERE id=${req.body.id}`, res, updateMenu))

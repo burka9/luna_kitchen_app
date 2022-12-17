@@ -8,10 +8,11 @@
 	import Pending from '../components/Pending.vue';
 	import Finished from '../components/Finished.vue';
 	import Orders from '../components/Orders.vue';
+	import Report from '../components/Report.vue';
 
 	export default {
 		name: 'CustomView',
-		components: { UserAccounts, MenuItems, Tables, Orders },
+		components: { UserAccounts, MenuItems, Tables, Orders, Report },
 
 		data: () => ({
 			api: 'http://localhost:3000',
@@ -23,8 +24,8 @@
 			tab: null,
 			tabs: [
 				{
-					header: ['menu items', 'user accounts', 'tables'],
-					component: [ MenuItems, UserAccounts, Tables ],
+					header: ['menu items', 'user accounts', 'tables', 'report'],
+					component: [ MenuItems, UserAccounts, Tables, Report ],
 				},
 				{
 					header: ['New', 'Pending', 'finished'],

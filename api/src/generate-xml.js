@@ -4,7 +4,7 @@ import path from 'path'
 import xmlbuilder from "xmlbuilder"
 import { query } from "."
 
-const rootPath = path.resolve('xml')
+let rootPath
 
 const {
 	PLANT_CODE,
@@ -14,7 +14,6 @@ const {
 	REFERENCE_NUMBER_1,
 	REFERENCE_NUMBER_2,
 	REFERENCE_NUMBER_3,
-	INVOICE_DATE,
 	CUSTOMER_CODE,
 	CUSTOMER_NAME,
 	CUSTOMER_TIN,
@@ -22,7 +21,8 @@ const {
 	INVOICE_DISCORADD_AMOUNT,
 	ITEM_UOM,
 	ITEM_TAX_PERCENT,
-	ITEM_DISCORADD_AMOUNT
+	ITEM_DISCORADD_AMOUNT,
+	XML_DIR_PATH
 } = process.env
 
 const getDate = () => {
@@ -74,8 +74,14 @@ export default async id => {
 		
 		await new Promise(async resolve => {
 			let items = JSON.parse(order.menu_items)
+			let count = {}
+			items.forEach(item => count = {
+				...count,
+				[item]: (items.filter(i => i == item)).length
+			})
 			let item
-			for (const index in items) {
+			let unique = [...new Set(items)]
+			for (const index in unique) {
 				item = (await query(`SELECT * FROM menu_item WHERE id=${items[index]}`))[0]
 				if (!item) {
 					if (index == items.length-1) resolve()
@@ -83,21 +89,23 @@ export default async id => {
 				}
 
 				xml.ele('Line_Items')
-					.ele('Item_ID').text(item.id).up()
+					.ele('Item_ID').text(item.maraki_id).up()
 					.ele('Item_Description').text(item.name).up()
-					.ele('Item_Quantity').text(1).up()
+					.ele('Item_Quantity').text(count[item.id]).up()
 					.ele('Item_UOM').text(ITEM_UOM).up()
 					.ele('Item_Unit_Price').text(item.price).up()
 					.ele('Item_Tax_Percent').text(ITEM_TAX_PERCENT).up()
 					.ele('Item_DiscOrAdd_Amount').text(ITEM_DISCORADD_AMOUNT)
 
-				if (index == items.length-1) resolve()
+				if (index == unique.length-1) resolve()
 			}
-		})		
+		})
+
+		// set dir path
+		rootPath = path.resolve(XML_DIR_PATH || 'xml')
 		
 		!fs.existsSync(rootPath) && fs.mkdirSync(rootPath)
 		fs.writeFileSync(path.resolve(rootPath, new Date().getTime().toString() + '.xml'), xml.end({ pretty: true }))
-		// fs.writeFileSync(path.resolve(rootPath, 'sample.xml'), xml.end({ pretty: true }))
 	} catch (e) {
 		console.error(e)
 	}

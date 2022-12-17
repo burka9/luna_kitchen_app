@@ -6,6 +6,7 @@ import order from './order'
 import category from './category'
 import subcategory from './subcategory'
 import menuItem from './menu-item'
+import report from './report'
 
 const router = Router()
 
@@ -21,6 +22,7 @@ router.use('/order', order)
 router.use('/category', category)
 router.use('/subcategory', subcategory)
 router.use('/menu-item', menuItem)
+router.use('/report', report)
 
 
 export default router

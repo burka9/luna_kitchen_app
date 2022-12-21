@@ -53,13 +53,13 @@ export async function query (sql) {
 	})
 }
 
-export function resolve (sql, res, callback, args) {
+export function resolve (sql, res, callback) {
 	query(sql)
 		.then(async result => {
 			res.json({ success: result.affectedRows > 0 || result.changedRows > 0 })
 
 			if ((result.affectedRows > 0 || result.changedRows > 0) && callback)
-				callback(await query(`SELECT LAST_INSERT_ID()`), args)
+				callback(result)
 		})
 		.catch(err => {
 			console.log(err)
@@ -68,9 +68,9 @@ export function resolve (sql, res, callback, args) {
 }
 
 
-let host = process.argv[2] || 'localhost'
-let port = process.argv[3] || 3000
-let backlog = process.argv[4] || 1024
+let host = process.env.HOST || 'localhost'
+let port = process.env.PORT || 3000
+let backlog = process.env.BACKLOG || 128
 
 
 server.listen(port, host, backlog, () => {

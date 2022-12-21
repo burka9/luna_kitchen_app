@@ -94,4 +94,7 @@ sw.*
 api/xml
 XML
 
+# temporary print files
+tmp
+
 menu_item.sql

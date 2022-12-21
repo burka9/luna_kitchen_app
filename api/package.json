@@ -19,12 +19,15 @@
     "@babel/node": "^7.20.0",
     "@babel/preset-env": "^7.19.4",
     "dotenv": "^16.0.3",
-    "node-windows": "^1.0.0-beta.8"
+    "node-windows": "^1.0.0-beta.8",
+    "nodemon": "^2.0.20"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "mysql": "^2.18.1",
+    "pdf-creator-node": "^2.3.5",
+    "pdf-to-printer": "^5.4.0",
     "socket.io": "^4.5.4",
     "xmlbuilder": "^15.1.1"
   }

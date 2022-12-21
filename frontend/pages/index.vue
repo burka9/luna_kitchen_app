@@ -51,8 +51,11 @@ const login = () => {
 }
 
 onMounted(() => {
-	if (location.hostname != 'localhost')
+	if (location.hostname != 'localhost') {
 		api = `${location.protocol}//${location.hostname}`
+		if (!isNaN(location.port)) api += `:${3000}`
+	}
+
 	try { // resume session
 		let { type, username } = JSON.parse(localStorage.order_data)
 		axios.get(`${api}/api/user?type=${type}&username=${username}`)

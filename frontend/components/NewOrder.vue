@@ -85,7 +85,7 @@ const clear = () => {
 	if (newOrderForm.value && newOrderForm.value.reset) newOrderForm.value.reset()
 }
 
-const submit = () => {
+const submit = (print = false) => {
 	if (newOrderForm.value.validate()) {
 		if (state.selection.items.length == 0) return
 		axios.post(`${props.api}/api/order`, {
@@ -94,6 +94,7 @@ const submit = () => {
 			table_index: state.order.table_index,
 			items: state.selection.items.map(item => item.id),
 			issued: new Date().getTime(),
+			print
 		})
 			.then(result => {
 				if (result.data.success) return state.snackbar.show('Order sent!', 'primary')
@@ -182,6 +183,7 @@ onMounted(() => {
 								<div class="d-flex">
 									<v-spacer></v-spacer>
 									<v-btn small class="mr-4" color="primary" @click="clear">Clear All</v-btn>
+									<v-btn small class="mr-4" color="primary" @click="submit(true)">Submit & Print</v-btn>
 									<v-btn small color="primary" @click="submit">Submit</v-btn>
 								</div>
 							</v-card-text>

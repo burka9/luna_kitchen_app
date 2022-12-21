@@ -8,11 +8,12 @@
 	import Pending from '../components/Pending.vue';
 	import Finished from '../components/Finished.vue';
 	import Orders from '../components/Orders.vue';
-	import Report from '../components/Report.vue';
+	import DetailReport from '../components/DetailReport.vue';
+	import DailyReport from '../components/DailyReport.vue';
 
 	export default {
 		name: 'CustomView',
-		components: { UserAccounts, MenuItems, Tables, Orders, Report },
+		components: { UserAccounts, MenuItems, Tables, Orders, DetailReport },
 
 		data: () => ({
 			api: 'http://localhost:3000',
@@ -24,8 +25,8 @@
 			tab: null,
 			tabs: [
 				{
-					header: ['menu items', 'user accounts', 'tables', 'report'],
-					component: [ MenuItems, UserAccounts, Tables, Report ],
+					header: ['menu items', 'user accounts', 'tables', 'detail report', 'transaction report'],
+					component: [ MenuItems, UserAccounts, Tables, DailyReport, DetailReport ],
 				},
 				{
 					header: ['New', 'Pending', 'finished'],
@@ -60,8 +61,10 @@
 		},
 		mounted() {
 			// set api
-			if (location.hostname != 'localhost')
+			if (location.hostname != 'localhost') {
 				this.api = `${location.protocol}//${location.hostname}`
+				if (!isNaN(location.port)) this.api += `:${3000}`
+			}
 
 			// socket connection
 			this.socket = io(this.api)

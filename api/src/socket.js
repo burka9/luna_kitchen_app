@@ -8,8 +8,8 @@ export function updateMenu () {
 	io.emit('update_menu')
 }
 
-export function updateOrder(result, { table_index }) {
-	if (result[0]) query(`UPDATE tables SET current_order_id=${result[0]['LAST_INSERT_ID()']} WHERE table_index=${table_index}`)
+export function updateOrder(result, table_index) {
+	query(`UPDATE tables SET current_order_id=${result.insertId} WHERE table_index=${table_index}`)
 	if (io === null) return
 	io.emit('update_order')
 	io.emit('update_table')

@@ -108,6 +108,7 @@ const state = reactive({
 			id: -1,
 			name: '',
 			detail: '',
+			printer: '',
 			editing: false,
 			toggle: item => {
 				if (categoryForm.value && categoryForm.value.reset) categoryForm.value.reset()
@@ -118,6 +119,7 @@ const state = reactive({
 					state.dialog.category.id = item.id
 					state.dialog.category.name = item.name
 					state.dialog.category.detail = item.detail ? item.detail : ''
+					state.dialog.category.printer = item.printer ? item.printer : ''
 				}
 			},
 			close: () => {
@@ -125,6 +127,7 @@ const state = reactive({
 				state.dialog.category.name = ''
 				state.dialog.category.detail = ''
 				state.dialog.category.show = false
+				state.dialog.category.printer = ''
 			},
 			save: () => {
 				if (categoryForm.value.validate())
@@ -171,7 +174,16 @@ const state = reactive({
 			}
 		},
 	},
+	printers: []
 })
+
+const fetch_printers = () => {
+	axios.get(`${props.api}/api/printer`)
+		.then(result => {
+			if (result.data.success) state.printers = result.data.list
+		})
+		.catch(err => console.error(err))
+}
 
 const completed = (result, text = 'Successful!') => {
 	if (result.data.success) {
@@ -209,7 +221,8 @@ const toggleStatus = item => {
 const createNewCategory = () => {
 	axios.post(`${props.api}/api/category`, {
 		name: state.dialog.category.name,
-		detail: state.dialog.category.detail ? state.dialog.category.detail : ''
+		detail: state.dialog.category.detail ? state.dialog.category.detail : '',
+		type: state.dialog.category.printer
 	})
 		.then(result => completed(result, 'Category created!'))
 		.catch(error)
@@ -341,6 +354,7 @@ const fetch_item = filter => {
 
 
 fetch_category()
+fetch_printers()
 
 onMounted(() => {
 	props.socket.on('update_menu', () => {
@@ -381,6 +395,8 @@ onMounted(() => {
 					<v-form ref="categoryForm">
 						<v-text-field label="Name" :rules="requiredRule" v-model="state.dialog.category.name"></v-text-field>
 						<v-text-field label="Detail" v-model="state.dialog.category.detail"></v-text-field>
+						<!-- <v-select label="Print Type" :items="state.printers" item-text="name" item-value="deviceId" v-model="state.dialog.category.printer" v-if="state.categorySection"></v-select> -->
+						<v-select label="Category Type" :rules="requiredRule" :items="['Bar', 'Kitchen']" v-model="state.dialog.category.printer" v-if="state.categorySection"></v-select>
 					</v-form>
 				</v-card-text>
 				<v-card-actions>

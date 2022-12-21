@@ -40,7 +40,7 @@ const state = reactive({
 })
 
 const fetch_list = () => {
-	axios.get(`${props.api}/api/report`)
+	axios.get(`${props.api}/api/report/detail`)
 		.then(result => {
 			if (result.data.success) state.items = result.data.list
 		})
@@ -61,7 +61,7 @@ const filteredItems = computed(() => {
 
 		if (
 			state.filter.date != null
-			&& new Date(state.filter.date).toDateString().toString() != new Date(parseInt(item.complete_date)).toDateString().toString()
+			&& new Date(state.filter.date).toDateString().toString() != new Date(parseInt(item.issue_date)).toDateString().toString()
 		) return 'exclude'
 		
 		return item
@@ -99,7 +99,7 @@ onMounted(() => {
 				<v-select dense  label="Filter by Status" :items="Object.values(state.statuses)" v-model="state.filter.status"></v-select>
 			</v-col>
 			<v-col cols="2">
-				<v-text-field dense  label="Filter by Complete Date" type="date" v-model="state.filter.date"></v-text-field>
+				<v-text-field dense  label="Filter by Issued Date" type="date" v-model="state.filter.date"></v-text-field>
 			</v-col>
 			<v-col cols="2">
 				<v-btn color="primary" @click="clearFilter">Clear All</v-btn>

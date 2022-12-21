@@ -117,7 +117,7 @@
 						<v-container fill-height>
 							<v-chip v-for="(item, index) in uniqueItems(order.items)" :key="`items-${index}`" color="warning" class="pointer ma-3 my-2">
 								<v-avatar left>{{ item.count }}</v-avatar>
-								{{ item.name }}
+								<span class="wrap-me">{{ item.name }}</span>
 							</v-chip>
 						</v-container>
 						<v-divider class="mx-10 my-3"></v-divider>
@@ -136,5 +136,9 @@
 <style scoped>
 .pointer {
 	cursor: pointer;
+}
+.v-chip {
+	height: auto;
+	white-space: normal;
 }
 </style>

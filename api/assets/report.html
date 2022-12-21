@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Order Report</title>
+		<style>
+			body {
+				font-size: 12px;
+			}
+			p {
+				margin: 0;
+			}
+			table {
+				border-collapse: collapse;
+			}
+			th, td {
+				border: 1px solid black;
+			}
+			th p {
+				text-align: left;
+			}
+			td:nth-child(6) {
+				width: 225px;
+			}
+			td:nth-child(7), td:nth-child(8), td:nth-child(9) {
+				text-align: right;
+			}
+		</style>
+	</head>
+	<body>
+		<h3 class="header">THE EXCLUSIVE<br>KITCHEN ORDER REPORT</h3>
+		<table>
+			<tr>
+				<th><p>ID</p></th>
+				<th><p>Date</p></th>
+				<th><p>Waiter</p></th>
+				<th><p>Status</p></th>
+				<th><p>Table</p></th>
+				<th><p>Item</p></th>
+				<th><p>Quantity</p></th>
+				<th><p>Unit Price</p></th>
+				<th><p>Total Price</p></th>
+			</tr>
+			{{#each this}}
+			<tr>
+				<td>{{this.maraki_id}}</td>
+				<td>{{this.parsedDate}}</td>
+				<td>{{this.waiter.name}}</td>
+				<td>{{this.statusText}}</td>
+				<td>{{this.tableText}}</td>
+				<td>{{this.name}}</td>
+				<td>{{this.quantity}}</td>
+				<td>{{this.price}}</td>
+				<td>{{this.totalPrice}}</td>
+			</tr>
+			{{/each}}
+		</table>
+	</body>
+</html>

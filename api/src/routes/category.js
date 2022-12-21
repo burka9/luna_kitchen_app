@@ -19,15 +19,17 @@ router.route('/')
 	})
 
 	.post((req, res) => { // create new category
-		let { name, detail } = req.body
+		let { name, detail, type } = req.body
 
-		resolve(`INSERT INTO menu_item_category VALUES (NULL, "${name}", "${detail}");`, res, updateMenu)
+		type = type ? type.toLowerCase() : type
+
+		resolve(`INSERT INTO menu_item_category VALUES (NULL, "${name}", "${detail}", "${type}");`, res, updateMenu)
 	})
 
 	.put((req, res) => { // edit a category
 		let { id, name, detail } = req.body
 
-		resolve(`UPDATE menu_item_category SET name="${name}", detail="${detail}" WHERE id=${id}`, res, updateMenu)
+		resolve(`UPDATE menu_item_category SET name="${name}", detail="${detail}", type=${type} WHERE id=${id}`, res, updateMenu)
 	})
 
 	.delete((req, res) => resolve(`DELETE FROM menu_item_category WHERE id=${req.body.id}`, res, updateMenu))

@@ -1,5 +1,6 @@
 require('dotenv').config()
 import { query } from ".."
+import { printOrder } from "../routes/order"
 // import generateXml from "../generate-xml"
 
 export default async () => {
@@ -32,7 +33,8 @@ export default async () => {
 		await query(`CREATE TABLE IF NOT EXISTS menu_item_category (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
-			detail VARCHAR(255)
+			detail VARCHAR(255),
+			type VARCHAR(255)
 		)`)
 		await query(`CREATE TABLE IF NOT EXISTS menu_item_subcategory (
 			id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -73,6 +75,7 @@ export default async () => {
 		)`)
 		console.log('tables initialized')
 		// generateXml(2)
+		// await printOrder(8)
 	} catch(e) {
 		console.log(e)
 		console.log('error creating tables')

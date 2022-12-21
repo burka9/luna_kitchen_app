@@ -29,6 +29,7 @@
     "pdf-creator-node": "^2.3.5",
     "pdf-to-printer": "^5.4.0",
     "socket.io": "^4.5.4",
+    "unix-print": "^1.2.0",
     "xmlbuilder": "^15.1.1"
   }
 }

@@ -2,6 +2,7 @@ import pdf from 'pdf-creator-node'
 import fs from 'fs'
 import path from 'path'
 import { getPrinters, print } from 'pdf-to-printer'
+import { print as unixPrint } from 'unix-print'
 
 export const getReportItems = (items, list) => {
 	let count = {}
@@ -45,6 +46,10 @@ export const printFile = async (file, printer) => {
 		case 'win32':
 			await print(file, { printer })
 			// console.log(`print job completed`)
+			return true
+			break
+		case 'linux':
+			await unixPrint(file, printer)
 			return true
 			break
 		default:

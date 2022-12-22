@@ -121,7 +121,7 @@ router.route('/')
 
 		resolve(`INSERT INTO orders VALUES (NULL, "${JSON.stringify(items)}", ${user_id}, ${table_index}, "${issued}", NULL, NULL, NULL, "pending", "${description}")`, res, result => {
 			updateOrder(result, table_index)
-			if (print) printOrder(result.insertId)
+			if (!!print) printOrder(result.insertId)
 		})
 	})
 

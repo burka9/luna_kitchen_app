@@ -1,6 +1,7 @@
-require('dotenv').config()
+import 'dotenv/config'
 import http from 'http'
 import path from 'path'
+import fs from 'fs'
 import express from 'express'
 import cors from 'cors'
 import mysql from 'mysql'
@@ -10,13 +11,20 @@ import database from './database'
 import handle_socket from './socket'
 
 
-const { DB_USER, DB_PASSWORD, DB_HOST } = process.env
+const { DB_USER, DB_PASSWORD, DB_HOST, XML_DIR_PATH, TEMP_DIR_PATH } = process.env
 
 const conn = mysql.createConnection({
 	user: DB_USER,
 	password: DB_PASSWORD,
 	host: DB_HOST
 })
+
+const xml_dir = path.resolve(XML_DIR_PATH || 'xml')
+const tmp_dir = path.resolve(TEMP_DIR_PATH || 'tmp')
+
+// create directories
+!fs.existsSync(xml_dir) && fs.mkdirSync(xml_dir)
+!fs.existsSync(tmp_dir) && fs.mkdirSync(tmp_dir)
 
 const app = express()
 app.use(cors())

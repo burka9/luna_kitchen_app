@@ -95,8 +95,12 @@
 				let { type, username, name } = JSON.parse(localStorage.order_data)
 				axios.get(`${this.api}/api/user?type=${type}&username=${username}`)
 					.then(result => {
+						// check if url matches user type
 						if (!result.data.success) return this.destroy()
+
 						this.name = name
+						
+						if (location.pathname != `/${type}`) location.assign(type)
 					})
 					.catch(err => this.destroy())
 			} catch {

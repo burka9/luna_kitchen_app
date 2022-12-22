@@ -93,24 +93,24 @@ const saveDate = () => {
 const filterMethod = report => {
 	let pass = true
 	// check for waiter filter
-	if (state.filter.waiter !== -1)
-		pass &&= report.waiter.id == state.filter.waiter
+	// if (state.filter.waiter !== -1)
+	// 	pass &&= report.waiter.id == state.filter.waiter
 
-	// check for status filter
-	if (state.filter.status != 'All')
-		pass &&= report.statusText == state.filter.status
+	// // check for status filter
+	// if (state.filter.status != 'All')
+	// 	pass &&= report.statusText == state.filter.status
 
-	// check for item filter
-	if (state.filter.item != -1)
-		pass &&= report.id == state.filter.item
+	// // check for item filter
+	// if (state.filter.item != -1)
+	// 	pass &&= report.id == state.filter.item
 
-	// check for date filter
-	if (state.filter.date != null)
-		pass &&= compareDate(state.filter.date, report.date)
+	// // check for date filter
+	// if (state.filter.date != null)
+	// 	pass &&= compareDate(state.filter.date, report.date)
 
-	// check for table filter
-	if (state.filter.table != -1)
-		pass &&= report.table == state.filter.table
+	// // check for table filter
+	// if (state.filter.table != -1)
+	// 	pass &&= report.table == state.filter.table
 
 	return pass
 }

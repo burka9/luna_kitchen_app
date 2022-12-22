@@ -36,24 +36,31 @@ export const convertToPDF = async (data, templatePath = htmlPath, options) => {
 
 		return result
 	} catch(err) {
+		console.log('error converting to pdf')
 		console.error(err)
 		return { success: false }
 	}
 }
 
 export const printFile = async (file, printer) => {
-	switch (process.platform) {
-		case 'win32':
-			await print(file, { printer })
-			// console.log(`print job completed`)
-			return true
-			break
-		case 'linux':
-			await unixPrint(file, printer)
-			return true
-			break
-		default:
-			console.log(`no print handler for platform ${process.platform}`)
-			return false
+	try {
+		switch (process.platform) {
+			case 'win32':
+				await print(file, { printer })
+				// console.log(`print job completed`)
+				return true
+				break
+			case 'linux':
+				await unixPrint(file, printer)
+				return true
+				break
+			default:
+				console.log(`no print handler for platform ${process.platform}`)
+				return false
+		}
+	} catch(err) {
+		console.log('error printing file')
+		console.log(err)
+		return false
 	}
 }

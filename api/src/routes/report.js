@@ -72,6 +72,8 @@ router.route('/')
 					let waiter = waiters.find(waiter => waiter.id == order.user_id)
 					report.push({
 						id: item.id,
+						category: item.category_id,
+						subcategory: item.subcategory_id,
 						maraki_id: item.maraki_id,
 						name: item.name,
 						table: order.table_index,

@@ -415,7 +415,7 @@ onMounted(() => {
 					<v-form ref="itemForm">
 						<v-row>
 							<v-col cols="4">
-								<v-text-field label="Maraki ID" required :rules="requiredRule" v-model="state.dialog.item.maraki_id"></v-text-field>
+								<v-text-field label="ID" required :rules="requiredRule" v-model="state.dialog.item.maraki_id"></v-text-field>
 							</v-col>
 							<v-col cols="8">
 								<v-text-field label="Name" required :rules="requiredRule" v-model="state.dialog.item.name"></v-text-field>

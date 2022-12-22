@@ -34,18 +34,21 @@ const state = reactive({
 	waiters: [],
 	status: [],
 	items: [],
+	subcategories: [],
 	tables: [],
 	filter: {
 		date: null,
 		waiter: -1,
 		status: 'All',
 		item: -1,
+		subcategory: -1,
 		table: -1,
 		clear() {
 			state.filter.date = null
 			state.filter.waiter = -1
 			state.filter.status = 'All'
 			state.filter.item = -1
+			state.filter.subcategory = -1
 			state.filter.table = -1
 		},
 	},
@@ -93,24 +96,30 @@ const saveDate = () => {
 const filterMethod = report => {
 	let pass = true
 	// check for waiter filter
-	// if (state.filter.waiter !== -1)
-	// 	pass &&= report.waiter.id == state.filter.waiter
+	if (state.filter.waiter !== -1)
+		pass = pass && report.waiter.id == state.filter.waiter
 
 	// // check for status filter
-	// if (state.filter.status != 'All')
-	// 	pass &&= report.statusText == state.filter.status
+	if (state.filter.status != 'All')
+		pass = pass && report.statusText == state.filter.status
 
 	// // check for item filter
-	// if (state.filter.item != -1)
-	// 	pass &&= report.id == state.filter.item
+	if (state.filter.item != -1)
+		pass = pass && report.id == state.filter.item
+
+	// check for subcategory filter
+	// if (state.filter.subcategory != -1)
+	// 	pass = pass && report.category.id
+
+	console.log(state.filter.subcategory)
 
 	// // check for date filter
-	// if (state.filter.date != null)
-	// 	pass &&= compareDate(state.filter.date, report.date)
+	if (state.filter.date != null)
+		pass = pass && compareDate(state.filter.date, report.date)
 
 	// // check for table filter
-	// if (state.filter.table != -1)
-	// 	pass &&= report.table == state.filter.table
+	if (state.filter.table != -1)
+		pass = pass && report.table == state.filter.table
 
 	return pass
 }
@@ -140,6 +149,15 @@ const fetch_items = filter => {
 	axios.get(`${props.api}/api/menu-item?${temp}`)
 		.then(result => {
 			state.items = result.data.success ? [ { name: 'All', id: -1, }, ...result.data.list] : state.items
+		})
+		.catch(err => console.error(err))
+}
+
+const fetch_subcategories = () => {
+	axios.get(`${props.api}/api/subcategory`)
+		.then(result => {
+			console.log(result.data.list)
+			state.subcategories = result.data.success ? [ { name: 'All', id: -1, }, ...result.data.list ] : state.subcategories
 		})
 		.catch(err => console.error(err))
 }
@@ -188,16 +206,13 @@ const download = () => {
 		.catch(err => console.error(err))
 }
 
-fetch_report()
-fetch_waiters()
-fetch_items()
-fetch_tables()
 
 const init = () => {
 	fetch_report()
 	fetch_waiters()
 	fetch_items()
 	fetch_tables()
+	fetch_subcategories()
 }
 
 init()
@@ -251,6 +266,9 @@ onMounted(() => {
 					<v-btn class="ml-5" color="primary" small @click="print">Print</v-btn>
 				</div>
 			</v-col>
+			<!-- <v-col cols="2">
+				<v-select dense label="Filter by category" :items="state.subcategories" item-text="name" item-id="category_id" v-model="state.filter.subcategory"></v-select>
+			</v-col> -->
 		</v-row>
 
 		<v-data-table :headers="state.headers" :items="filteredReport" item-key="id+maraki_id" class="elevation-2 mt-4">

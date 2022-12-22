@@ -32,7 +32,7 @@ const login = () => {
 		axios.post(`${api}/api/session`, {
 			username: state.username,
 			password: state.password
-		})
+		}, { withCredentials: false })
 			.then(result => {
 				if (result.data.success) {
 					localStorage.order_data = JSON.stringify(result.data)
@@ -58,7 +58,9 @@ onMounted(() => {
 
 	try { // resume session
 		let { type, username } = JSON.parse(localStorage.order_data)
-		axios.get(`${api}/api/user?type=${type}&username=${username}`)
+		axios.get(`${api}/api/user?type=${type}&username=${username}`, {
+			withCredentials: false
+		})
 			.then(result => {
 				if (result.data.success) location.assign(type)
 				else {

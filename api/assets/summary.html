@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Order Report</title>
+		<style>
+			body {
+				font-size: 12px;
+			}
+			p {
+				margin: 0;
+			}
+			table {
+				border-collapse: collapse;
+			}
+			th, td {
+				border: 1px solid black;
+			}
+			td {
+				text-align: right;
+			}
+			th p {
+				text-align: left;
+			}
+			td:first-child {
+				text-align: left;
+			}
+			th:first-of-type, td:first-of-type {
+				width: 125px;
+			}
+		</style>
+	</head>
+	<body>
+		<h3 class="header">THE EXCLUSIVE<br>KITCHEN ORDER</h3>
+		<p>Date: {{formattedDate}}</p>
+		<br>
+		<table>
+			<tr>
+				<th>
+					<p>Description</p>
+				</th>
+				<th>
+					<p>Quantity</p>
+				</th>
+				<th>
+					<p>Unit Price</p>
+				</th>
+				<th>
+					<p>Total Price</p>
+				</th>
+			</tr>
+			{{#each items}}
+			<tr>
+				<td>{{this.name}}</td>
+				<td>{{this.quantity}}</td>
+				<td>{{this.unit_price}}</td>
+				<td>{{this.total_price}}</td>
+			</tr>
+			{{/each}}
+		</table>
+	</body>
+</html>

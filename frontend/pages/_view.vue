@@ -33,8 +33,8 @@
 					component: [ NewOrder, Pending, Finished ],
 				},
 				{
-					header: ['orders', 'menu items' ],
-					component: [ Orders, MenuItems ],
+					header: ['orders', 'menu items', 'detail report', 'transaction report'],
+					component: [ Orders, MenuItems, DailyReport, DetailReport ],
 				}
 			],
 			finishedDialog: {

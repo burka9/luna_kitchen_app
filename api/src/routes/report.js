@@ -3,6 +3,7 @@ import path from 'path'
 import { Router } from 'express'
 import { query } from '..'
 import { convertToPDF, getReportItems, printFile } from '../util'
+import { addDays, compareAsc, compareDesc, isEqual } from 'date-fns'
 
 const router = Router()
 
@@ -116,7 +117,59 @@ const pdfFormatOptions = {
 router.route('/print')
 	.post(async (req, res) => {
 		try {
-			let result = await convertToPDF(req.body, path.resolve('assets/report.html'), pdfFormatOptions)
+			// summarize data
+			let report = req.body
+
+			if (Object.values(req.body).length == 0) return res.status(400).send('Cannot print empty report')
+			
+			let start = new Date("1970/01/01")
+			let end = addDays(new Date(), 30)
+			let items = {}
+			let total = {
+				name: 'Total',
+				quantity: 0,
+				unit_price: 0,
+				total_price: 0,
+			}
+
+			report.forEach(item => {
+				if (items[item.name]) {
+					items[item.name]['quantity'] += parseInt(item.quantity)
+					items[item.name]['unit_price'] += parseInt(item.price)
+					items[item.name]['total_price'] += parseInt(item.totalPrice)
+				}
+				else {
+					items[item.name] = {
+						name: item.name,
+						quantity: parseInt(item.quantity),
+						unit_price: parseInt(item.price),
+						total_price: parseInt(item.totalPrice),
+					}
+				}
+
+				if (compareAsc(start, new Date(parseInt(item.date))) == -1)
+					start = new Date(parseInt(item.date))
+				if (compareDesc(end, new Date(parseInt(item.date))) == -1)
+					end = new Date(parseInt(item.date))
+
+				total.quantity += parseInt(item.quantity)
+				total.unit_price += parseInt(item.price)
+				total.total_price += parseInt(item.totalPrice)
+			})
+
+			items = Object.values({ ...items, total })
+
+
+			let formattedDate = ''
+
+			if (isEqual(new Date(end.toDateString()), new Date(start.toDateString())))
+				formattedDate = start.toDateString()
+			else
+				formattedDate = `${end.toDateString()} - ${start.toDateString()}`
+
+			const summarizedData = { formattedDate, items }
+
+			let result = await convertToPDF(summarizedData, path.resolve('assets/summary.html'), pdfFormatOptions)
 
 			if (result.success) {
 				// do print job here

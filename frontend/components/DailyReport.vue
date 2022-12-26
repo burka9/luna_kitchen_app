@@ -135,13 +135,11 @@ const total = computed(() => {
 	let totalPrice = 0
 	let totalSum = 0
 
-	console.log(filteredReport)
-	
-	// filteredReport.forEach(item => {
-	// 	totalQuantity += parseInt(item.quantity)
-	// 	totalPrice += parseInt(item.price)
-	// 	totalSum += parent(item.totalPrice)
-	// })
+	filteredReport.value.forEach(item => {
+		totalQuantity += parseInt(item.quantity)
+		totalPrice += parseInt(item.price)
+		totalSum += parseInt(item.totalPrice)
+	})
 
 	return {
 		name: 'Total',
@@ -179,7 +177,6 @@ const fetch_items = filter => {
 const fetch_subcategories = () => {
 	axios.get(`${props.api}/api/subcategory`)
 		.then(result => {
-			console.log(result.data.list)
 			state.subcategories = result.data.success ? [ { name: 'All', id: -1, }, ...result.data.list ] : state.subcategories
 		})
 		.catch(err => console.error(err))

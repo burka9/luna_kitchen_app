@@ -82,6 +82,25 @@ const fetch_waiters = () => {
 		.catch(err => console.error(err))
 }
 
+const getTotalQuantity = items => {
+	let sum = 0
+	items.forEach(item => sum += parseInt(item.quantity))
+	return sum
+}
+
+const getTotalUnitPrice = items => {
+	let sum = 0
+	items.forEach(item => sum += parseInt(item.unit_price))
+	return sum
+}
+
+const getTotalPrice = items => {
+	let sum = 0
+	items.forEach(item => sum += parseInt(item.total_price))
+	return sum
+}
+
+
 onMounted(() => {
 	fetch_list()
 	fetch_waiters()
@@ -144,6 +163,12 @@ onMounted(() => {
 										<td>{{ item.quantity }}</td>
 										<td>{{ item.unit_price }}</td>
 										<td>{{ item.total_price }}</td>
+									</tr>
+									<tr>
+										<th>Total</th>
+										<th>{{ getTotalQuantity(item.items) }}</th>
+										<th>{{ getTotalUnitPrice(item.items) }}</th>
+										<th>{{ getTotalPrice(item.items) }}</th>
 									</tr>
 								</tbody>
 							</template>

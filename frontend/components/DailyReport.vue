@@ -111,7 +111,7 @@ const filterMethod = report => {
 	// if (state.filter.subcategory != -1)
 	// 	pass = pass && report.category.id
 
-	console.log(state.filter.subcategory)
+	// console.log(state.filter.subcategory)
 
 	// // check for date filter
 	if (state.filter.date != null)
@@ -124,8 +124,31 @@ const filterMethod = report => {
 	return pass
 }
 
-const filteredReport = computed(() => {
-	return state.report.filter(filterMethod)
+const filteredReport = computed({
+	get() {
+		return state.report.filter(filterMethod)
+	}
+})
+
+const total = computed(() => {
+	let totalQuantity = 0
+	let totalPrice = 0
+	let totalSum = 0
+
+	console.log(filteredReport)
+	
+	// filteredReport.forEach(item => {
+	// 	totalQuantity += parseInt(item.quantity)
+	// 	totalPrice += parseInt(item.price)
+	// 	totalSum += parent(item.totalPrice)
+	// })
+
+	return {
+		name: 'Total',
+		quantity: totalQuantity,
+		price: totalPrice,
+		totalPrice: totalSum,
+	}
 })
 
 const fetch_report = () => {
@@ -233,46 +256,84 @@ onMounted(() => {
 			<span class="text-subtitle-1">{{ state.snackbar.text }}</span>
 		</v-snackbar>
 
-		<v-row>
-			<v-col cols="2">
-				<v-select dense label="Filter by waiter" :items="state.waiters" item-text="name" item-value="id" v-model="state.filter.waiter"></v-select>
+		<v-row>			
+			<v-col cols="12" md="10">
+				<v-row>
+					<v-col cols="2">
+						<v-select dense label="Filter by waiter" :items="state.waiters" item-text="name" item-value="id" v-model="state.filter.waiter"></v-select>
+					</v-col>
+					<v-col cols="2">
+						<v-select dense label="Filter by status" :items="[...new Set(state.status)]" v-model="state.filter.status"></v-select>
+					</v-col>
+					<v-col cols="2">
+						<v-select dense label="Filter by items" :items="state.items" item-text="name" item-value="id" v-model="state.filter.item"></v-select>
+					</v-col>
+					<v-col cols="2">
+						<v-select dense label="Filter by table" :items="state.tables" item-text="name" item-value="table_index" v-model="state.filter.table"></v-select>
+					</v-col>
+					<v-col cols="2">
+						<v-menu v-model="state.menu" :close-on-content-click="false" transition="scale-transition" offset-y min-width="auto">
+							<template v-slot:activator="{ on, attrs }">
+								<v-text-field dense v-model="state.formattedDate" label="Filter by date" hint="MM DD, YYYY format" @blur="formatDate" readonly v-bind="attrs" v-on="on"></v-text-field>
+							</template>
+							<v-date-picker v-model="state.filter.date" no-title scrollable range>
+								<v-spacer></v-spacer>
+								<v-btn small text color="primary" @click="state.menu = false">Cancel</v-btn>
+								<v-btn small text color="primary" @click="saveDate">OK</v-btn>
+							</v-date-picker>
+						</v-menu>
+					</v-col>
+				</v-row>
 			</v-col>
-			<v-col cols="2">
-				<v-select dense label="Filter by status" :items="[...new Set(state.status)]" v-model="state.filter.status"></v-select>
-			</v-col>
-			<v-col cols="2">
-				<v-select dense label="Filter by items" :items="state.items" item-text="name" item-value="id" v-model="state.filter.item"></v-select>
-			</v-col>
-			<v-col cols="2">
-				<v-menu v-model="state.menu" :close-on-content-click="false" transition="scale-transition" offset-y min-width="auto">
-					<template v-slot:activator="{ on, attrs }">
-						<v-text-field dense v-model="state.formattedDate" label="Filter by date" hint="MM DD, YYYY format" @blur="formatDate" readonly v-bind="attrs" v-on="on"></v-text-field>
-					</template>
-					<v-date-picker v-model="state.filter.date" no-title scrollable range>
-						<v-spacer></v-spacer>
-						<v-btn small text color="primary" @click="state.menu = false">Cancel</v-btn>
-						<v-btn small text color="primary" @click="saveDate">OK</v-btn>
-					</v-date-picker>
-				</v-menu>
-			</v-col>
-			<v-col cols="2">
-				<v-select dense label="Filter by table" :items="state.tables" item-text="name" item-value="table_index" v-model="state.filter.table"></v-select>
-			</v-col>
-			<v-col cols="2">
-				<div class="d-flex items-center">
+
+			<v-col cols="12" md="2">
+				<div class="d-flex items-center justify-end flex-wrap">
 					<v-spacer></v-spacer>
-					<v-btn color="primary" small @click="state.filter.clear">Clear Filter</v-btn>
-					<v-btn class="mx-5" color="primary" small @click="download" v-if="false">Download</v-btn>
-					<v-btn class="ml-5" color="primary" small @click="print">Print</v-btn>
+					<v-btn class="ma-2" color="primary" small @click="state.filter.clear">Clear Filter</v-btn>
+					<v-btn class="ma-2" color="primary" small @click="download" v-if="false">Download</v-btn>
+					<v-btn class="ma-2" color="primary" small @click="print">Print</v-btn>
 				</div>
 			</v-col>
+			
 			<!-- <v-col cols="2">
 				<v-select dense label="Filter by category" :items="state.subcategories" item-text="name" item-id="category_id" v-model="state.filter.subcategory"></v-select>
 			</v-col> -->
 		</v-row>
 
-		<v-data-table :headers="state.headers" :items="filteredReport" item-key="id+maraki_id" class="elevation-2 mt-4">
-		</v-data-table>
+		<v-simple-table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Date</th>
+					<th>Waiter</th>
+					<th>Status</th>
+					<th>Table</th>
+					<th>Item</th>
+					<th>Quantity</th>
+					<th>Unit Price</th>
+					<th>Total Price</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="item in filteredReport" :key="Math.random() + item.id + item.maraki_id + '-key'">
+					<td>{{ item.maraki_id }}</td>
+					<td>{{ item.parsedDate }}</td>
+					<td>{{ item.waiter.name }}</td>
+					<td>{{ item.statusText }}</td>
+					<td>{{ item.tableText }}</td>
+					<td>{{ item.name }}</td>
+					<td>{{ item.quantity }}</td>
+					<td>{{ item.price }}</td>
+					<td>{{ item.totalPrice }}</td>
+				</tr>
+				<tr>
+					<th class="text-center font-weight-bold" colspan="6">{{  total.name  }}</th>
+					<td>{{ total.quantity }}</td>
+					<td>{{ total.price }}</td>
+					<td>{{ total.totalPrice }}</td>
+				</tr>
+			</tbody>
+		</v-simple-table>
 
 	</v-container>
 </template>

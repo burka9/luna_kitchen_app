@@ -257,7 +257,7 @@ fetch_list()
 									<v-text-field dense label="Password" :type="state.showPassword ? 'text' : 'password'"
 										v-model="state.user.password" :rules="state.rules.password()" required>
 										<v-icon slot="append" small style="cursor: pointer"
-											@click="state.showPassword = !state.showPassword">mdi-eye
+											@click="state.showPassword = !state.showPassword">visibility
 										</v-icon>
 									</v-text-field>
 								</v-col>
@@ -282,7 +282,7 @@ fetch_list()
 
 		<v-card>
 			<v-card-title>
-				<v-text-field v-model="state.search" append-icon="mdi-magnify" label="Search" single-line hide-details />
+				<v-text-field v-model="state.search" append-icon="search" label="Search" single-line hide-details />
 				<v-spacer></v-spacer>
 				<v-btn class="blue white--text" @click="showDialog" small>
 					Create new user
@@ -295,10 +295,10 @@ fetch_list()
 
 				<template v-slot:item.actions="{ item }">
 					<v-icon small color="primary" class="mr-2" @click="editUser(item)">
-						mdi-pencil
+						edit
 					</v-icon>
 					<v-icon small color="error" @click="deleteUser(item)" v-if="!isSelf(item.id) || item.id != 1">
-						mdi-delete
+						delete
 					</v-icon>
 				</template>
 			</v-data-table>

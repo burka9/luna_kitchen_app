@@ -120,7 +120,6 @@
 				<v-app-bar-title>{{ name }}</v-app-bar-title>
 				<v-spacer></v-spacer>
 				<v-btn text @click="destroy" small>
-					<v-icon>mdi-logout</v-icon>
 					Logout
 				</v-btn>
 
@@ -134,7 +133,7 @@
 						</v-card-text>
 						<div class="d-flex justify-center grow-1 mt-5">
 							<v-btn text color="green" @click="changeTab(2)">
-								<v-icon class="mr-3">mdi-check</v-icon>
+								<v-icon class="mr-3">done</v-icon>
 								View
 							</v-btn>
 						</div>

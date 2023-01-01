@@ -455,15 +455,14 @@ onMounted(() => {
 								<v-card-title>
 									<p class="ma-0">{{ cat.name }}</p>
 									<v-spacer></v-spacer>
-									<v-icon color="success" class="cursor-pointer ml-2" @click="state.dialog.category.toggle(cat)">mdi-pencil</v-icon>
-									<v-icon color="error" class="cursor-pointer ml-2" @click="state.delete.toggle(cat, 'category')">mdi-delete</v-icon>
+									<v-icon color="success" class="cursor-pointer ml-2" @click="state.dialog.category.toggle(cat)">edit</v-icon>
+									<v-icon color="error" class="cursor-pointer ml-2" @click="state.delete.toggle(cat, 'category')">delete</v-icon>
 								</v-card-title>
 								<v-card-text>{{ cat.detail }}</v-card-text>
 								<v-card-actions>
 									<v-spacer></v-spacer>
 									<v-btn small elevation="0" color="primary" class="px-3" @click="state.window.category(cat)">
 										<span class="mr-2">View</span>
-										<v-icon small>mdi-arrow-right</v-icon>
 									</v-btn>
 								</v-card-actions>
 							</v-card>
@@ -475,13 +474,13 @@ onMounted(() => {
 			<v-window-item :value="2">
 				<v-card v-if="state.category !== null">
 					<v-toolbar dark dense color="primary">
-						<v-icon small class="cursor-pointer mr-4" @click="state.window.home">mdi-arrow-left</v-icon>
+						<v-icon small class="cursor-pointer mr-4" @click="state.window.home">arrow_back</v-icon>
 						<v-toolbar-title class="uppercase text-subtitle-1">
 							{{ state.category.name }}
 						</v-toolbar-title>
 						<v-spacer></v-spacer>
 						<v-btn small text @click="state.dialog.category.toggle()">
-							<v-icon small>mdi-plus</v-icon>
+							<v-icon small>add</v-icon>
 							Add Sub Category
 						</v-btn>
 					</v-toolbar>
@@ -504,10 +503,10 @@ onMounted(() => {
 								<v-spacer></v-spacer>
 								<div>
 									<v-btn small fab text color="success" @click="state.dialog.category.toggle(state.subcategory.item)">
-										<v-icon small>mdi-pencil</v-icon>
+										<v-icon small>edit</v-icon>
 									</v-btn>
 									<v-btn small fab text color="error" @click="state.delete.toggle(state.subcategory.item, 'subcategory')">
-										<v-icon small>mdi-delete</v-icon>
+										<v-icon small>delete</v-icon>
 									</v-btn>
 								</div>
 							</div>
@@ -515,10 +514,10 @@ onMounted(() => {
 							<div class="my-6"></div>
 							
 							<div class="d-flex align-center mb-8">
-								<v-text-field class="col-4" v-model="state.subcategory.item.search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details />
+								<v-text-field class="col-4" v-model="state.subcategory.item.search" prepend-inner-icon="search" label="Search" single-line hide-details />
 								<v-spacer></v-spacer>
 								<v-btn small color="primary" @click="state.dialog.item.toggle()" elevation="0">
-									<v-icon small class="mr-2">mdi-plus</v-icon>
+									<v-icon small class="mr-2">add</v-icon>
 									Add Item
 								</v-btn>
 							</div>
@@ -535,10 +534,10 @@ onMounted(() => {
 
 								<template v-slot:item.actions="{ item }">
 									<v-icon small color="primary" class="mr-2" @click="state.dialog.item.toggle(item)">
-										mdi-pencil
+										edit
 									</v-icon>
 									<v-icon small color="error" @click="state.delete.toggle(item, 'item')">
-										mdi-delete
+										delete
 									</v-icon>
 								</template>
 							</v-data-table>

@@ -81,7 +81,7 @@ fetch_list()
 			<v-col cols="12" sm="6" md="4" lg="3" align="center" fill-height>
 				<v-btn color="primary" :disabled="state.adding" @click="addTable">
 					<span class="mr-3">Add Table</span>
-					<v-icon>mdi-plus</v-icon>
+					<v-icon>add</v-icon>
 				</v-btn>
 			</v-col>
 		</v-row>

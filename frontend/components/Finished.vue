@@ -113,7 +113,7 @@
 									<v-spacer></v-spacer>
 									<v-btn color="primary" small @click="markDone(item)">
 										<span class="mr-1">Mark as done</span>
-										<v-icon>mdi-check</v-icon>
+										<v-icon>done</v-icon>
 									</v-btn>
 								</div>
 							</v-col>

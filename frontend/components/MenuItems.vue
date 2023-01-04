@@ -521,7 +521,10 @@ onMounted(() => {
 									Add Item
 								</v-btn>
 							</div>
-							<v-data-table :headers="state.subcategory.headers" :items="state.subcategory.item.children" :search="state.subcategory.item.search" dense>
+							<v-data-table :headers="state.subcategory.headers" :items="state.subcategory.item.children" :search="state.subcategory.item.search" dense :footer-props="{
+								prevIcon: 'chevron_left',
+								nextIcon: 'chevron_right',
+							}">
 								<template v-slot:item.no="{ item, index }">
 									{{ index + 1 }}
 								</template>

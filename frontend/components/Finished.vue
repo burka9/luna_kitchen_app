@@ -69,7 +69,7 @@
 		<v-container fluid>
 			<v-expansion-panels v-model="state.panels">
 				<v-expansion-panel v-for="(item, i) in state.items" :key="i">
-					<v-expansion-panel-header>
+					<v-expansion-panel-header expand-icon="expand_more">
 						<v-row align="center" class="mx-1 mx-sm-2 mx-md-3">
 							<h4>{{ get_title(item.order) }}</h4>
 							<v-spacer></v-spacer>

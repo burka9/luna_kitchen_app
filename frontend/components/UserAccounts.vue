@@ -288,7 +288,10 @@ fetch_list()
 					Create new user
 				</v-btn>
 			</v-card-title>
-			<v-data-table :headers="state.headers" :items="state.users" :search="state.search" dense :items-per-page="5">
+			<v-data-table :headers="state.headers" :items="state.users" :search="state.search" dense :items-per-page="5" :footer-props="{
+				prevIcon: 'chevron_left',
+				nextIcon: 'chevron_right',
+			}">
 				<template v-slot:item.no="{ item, index }">
 					{{ index + 1 }}
 				</template>

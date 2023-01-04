@@ -198,7 +198,7 @@ onMounted(() => {
 						<v-col cols="4" class="border-right">
 							<v-list dense>
 								<v-list-group v-for="category in state.category" :key="`category-${category.id}`"
-									v-model="category.active" no-action @click="makecategoryActive(category)">
+									v-model="category.active" no-action @click="makecategoryActive(category)" append-icon="expand_more">
 									<template v-slot:activator>
 										<v-list-item-icon>
 											<v-chip dark :color="getSelectionCount_category(category) == 0 ? 'grey' : 'green'" small pill>{{ getSelectionCount_category(category) }}</v-chip>

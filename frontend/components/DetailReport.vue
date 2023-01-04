@@ -125,7 +125,12 @@ onMounted(() => {
 			</v-col>
 		</v-row>
 		
-		<v-data-table :headers="state.headers" :items="filteredItems" class="elevation-3" show-expand item-key="id" :single-expand="true" :expanded.sync="state.expanded">
+		<v-data-table :headers="state.headers" :items="filteredItems" class="elevation-3" show-expand item-key="id" :single-expand="true" :expanded.sync="state.expanded" expand-icon="expand_more"
+			:footer-props="{
+				prevIcon: 'chevron_left',
+				nextIcon: 'chevron_right',
+			}"
+		>
 			<template v-slot:item.no="{ item, index }">
 				{{ index + 1 }}
 			</template>

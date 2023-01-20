@@ -111,6 +111,8 @@
 							<v-list-item-subtitle :class="{'text-subtitle-1': true, 'white--text': order.canceled}">{{ order.description }}</v-list-item-subtitle>
 						</v-list-item-content>
 						<p :class="{'ma-0 text-subtitle-1': true, 'white--text': order.canceled}">{{ Number(order.price).toFixed(2) }}</p>
+						<p :class="{'ma-0 mx-2 text-subtitle-1': true, 'white--text': order.canceled}">-</p>
+						<p :class="{'ma-0 text-subtitle-1': true, 'white--text': order.canceled}">Table {{ order.table }}</p>
 					</v-list-item>
 					<v-divider class="mx-12"></v-divider>
 					<v-card-text class="grow-1">

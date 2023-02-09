@@ -1,6 +1,6 @@
 <script setup>
 	import axios from 'axios';
-	import { reactive, onMounted, computed } from 'vue';
+	import { reactive, onMounted, computed, onUpdated } from 'vue';
 	
 	const props = defineProps({
 		api: String,
@@ -9,14 +9,15 @@
 	
 	const state = reactive({
 		orders: [],
+		newItem: null,
 	})
 	
 	const ordersList = computed(() => state.orders)
 	
-	const fetch_list = () => {
+	const fetch_list = (oldList = null) => {
 		axios.get(`${props.api}/api/order?from=kitchen`)
 			.then(result => {
-				if (result.data.success)
+				if (result.data.success) {
 					state.orders = result.data.list.map(item => ({
 						id: item.id,
 						table: item.table,
@@ -29,6 +30,11 @@
 						price: getPrice(item.items),
 						issued: new Date(parseInt(item.issued)).toLocaleTimeString()
 					}))
+
+					if (oldList != null) {
+						state.newItem = state.orders.filter(newItem => !oldList.some(oldItem => oldItem.id === newItem.id))[0];
+					}
+				}
 			})
 			.catch(err => console.log(err))
 	}
@@ -74,10 +80,31 @@
 	
 	fetch_list()
 
+	onUpdated(() => {
+		if (state.newItem !== null) {
+			// console.log('new item added and updated view')
+			document.getElementById(`order-view-${state.newItem.id}`).classList.add('the-new-item')
+			// setTimeout(() => {
+			// 	state.newItem.classList.remove('the-new-item')
+			// }, 5000)
+		}
+	})
+
 	onMounted(() => {
 		props.socket.on('update_order', () => {
-			console.log('show notification for new order')
-			fetch_list()
+			// console.log('show notification for new order')
+			
+			try {
+				let { type } = JSON.parse(localStorage.order_data)
+
+				if (type == 'kitchen') {
+					document.getElementById('audio').play()
+					window.navigator.vibrate([350, 350, 350, 350, 350])
+
+					// mark the new order
+					fetch_list([...state.orders])
+				}
+			} catch {}
 		})
 		props.socket.on('archived_an_order', () => {
 			fetch_list()
@@ -104,7 +131,7 @@
 				<v-card v-for="order in ordersList" :key="`order-${order.id}`" :class="{
 					'ma-3': true,
 					'red white--text': order.canceled
-				}" style="width: 400px">
+				}" :id="`order-view-${order.id}`" style="width: 400px">
 					<v-list-item>
 						<v-list-item-content>
 							<v-list-item-title :class="{'text-h5': true, 'white--text': order.canceled}">{{ order.user_name }}'s order</v-list-item-title>
@@ -142,5 +169,18 @@
 .v-chip {
 	height: auto;
 	white-space: normal;
+}
+
+@keyframes pulsate {
+	0% {
+		background-color: white;
+	} 50% {
+		background-color: aquamarine;
+	} 100% {
+		background-color: white;
+	}
+}
+.the-new-item {
+	animation: pulsate 1.2s ease-in-out 4;
 }
 </style>

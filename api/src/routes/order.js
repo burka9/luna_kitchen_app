@@ -85,11 +85,13 @@ router.route('/')
 			else if (!id && status)
 				condition = `WHERE status='${status}'`
 		}
-			
-		query(`SELECT * FROM orders ${condition} ORDER BY order_issued_date`)
+		
+		const sql = `SELECT * FROM orders ${condition} ORDER BY table_index, order_issued_date`
+		
+		query(sql)
 			.then(async result => {
 				let list = []
-
+				
 				if (result.length > 0)
 					await new Promise((resolve, reject) => {
 						result.forEach(async (item, index) => {
@@ -115,13 +117,13 @@ router.route('/')
 	})
 
 	.post((req, res) => { // create new order
-		let { description, user_id, items, issued, table_index, print } = req.body
-
+		let { description, user_id, items, issued, table_index, sendToPrinter } = req.body
+		
 		description = description ? description : ''
-
+		
 		resolve(`INSERT INTO orders VALUES (NULL, "${JSON.stringify(items)}", ${user_id}, ${table_index}, "${issued}", NULL, NULL, NULL, "pending", "${description}")`, res, result => {
 			updateOrder(result, table_index)
-			if (!!print) printOrder(result.insertId)
+			if (sendToPrinter) printOrder(result.insertId)
 		})
 	})
 

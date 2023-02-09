@@ -85,7 +85,7 @@ const clear = () => {
 	if (newOrderForm.value && newOrderForm.value.reset) newOrderForm.value.reset()
 }
 
-const submit = (print = false) => {
+const submit = sendToPrinter => {
 	if (newOrderForm.value.validate()) {
 		if (state.selection.items.length == 0) return
 		axios.post(`${props.api}/api/order`, {
@@ -94,7 +94,7 @@ const submit = (print = false) => {
 			table_index: state.order.table_index,
 			items: state.selection.items.map(item => item.id),
 			issued: new Date().getTime(),
-			print
+			sendToPrinter
 		})
 			.then(result => {
 				if (result.data.success) return state.snackbar.show('Order sent!', 'primary')
@@ -145,7 +145,8 @@ const init = () => {
 init()
 
 const availableTables = computed(() => {
-	return state.tables.map(table => table.current_order_id == null ? table : undefined)
+	// return state.tables.filter(table => table.current_order_id == null)
+	return state.tables
 })
 
 onMounted(() => {
@@ -184,7 +185,7 @@ onMounted(() => {
 									<v-spacer></v-spacer>
 									<v-btn small class="mr-4" color="primary" @click="clear">Clear All</v-btn>
 									<v-btn small class="mr-4" color="primary" @click="submit(true)">Submit & Print</v-btn>
-									<v-btn small color="primary" @click="submit">Submit</v-btn>
+									<v-btn small color="primary" @click="submit(false)">Submit</v-btn>
 								</div>
 							</v-card-text>
 						</v-col>

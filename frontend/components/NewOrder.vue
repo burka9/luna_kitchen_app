@@ -109,7 +109,7 @@ const submit = sendToPrinter => {
 }
 
 const getTableList = () => {
-	axios.get(`${props.api}/api/table`)
+	axios.get(`${props.api}/api/table?sort=true`)
 		.then(result => state.tables = result.data.success ? result.data.list.map(table => ({ ...table, label: `Table ${table.table_index}` })) : [])
 		.catch(err => console.error(err))
 }

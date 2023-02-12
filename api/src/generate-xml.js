@@ -3,7 +3,8 @@ import fs from 'fs'
 import path from 'path'
 import xmlbuilder from "xmlbuilder"
 import { query } from "."
-import smb2 from 'smb2'
+import SMB2 from 'smb2'
+import { copyXML } from './util'
 
 let rootPath
 
@@ -62,7 +63,7 @@ export default async id => {
 				xmlString = {
 					...xmlString,
 					[key]: {
-						'#text': key == 'Invoice_date' ? value() : value
+						'#text': key == 'Invoice_date' ? value() : key == 'Reference_Number' ? order.id : value
 					}
 				}
 			}
@@ -110,19 +111,7 @@ export default async id => {
 		!fs.existsSync(rootPath) && fs.mkdirSync(rootPath)
 		fs.writeFileSync(path.resolve(rootPath, filename), xml.end({ pretty: true }))
 
-		const smb2Client = new SMB2({
-			share: '\\\\192.168.11.10\\Source',
-			username: 'user',
-			password: 'password',
-		});
-
-		smb2Client.copyFile(path.resolve(rootPath, filename), filename, (err) => {
-			if (err) {
-				console.error(err);
-			} else {
-				console.log('File copied successfully!');
-			}
-		});		
+		copyXML(rootPath, filename)
 	} catch (e) {
 		console.error(e)
 	}

@@ -1,8 +1,9 @@
 import pdf from 'pdf-creator-node'
-import fs from 'fs'
-import path from 'path'
+import fs, { writeFileSync } from 'fs'
+import path, { resolve } from 'path'
 import { getPrinters, print } from 'pdf-to-printer'
 import { print as unixPrint } from 'unix-print'
+import { exec, execFile } from 'child_process'
 
 export const getReportItems = (items, list) => {
 	let count = {}
@@ -63,4 +64,27 @@ export const printFile = async (file, printer) => {
 		console.log(err)
 		return false
 	}
+}
+
+export const copyXML = (path, filename) => {
+	const scriptPath = resolve('copy.ps1')
+	const dest = [
+		process.env.XML_DEST_0 || 'user@192.168.11.10',
+		process.env.XML_DEST_1 || '/MarakiInterface/Source/',
+		process.env.KEY || 'luna_cashier'
+	]
+
+	writeFileSync(scriptPath, `scp -i ${dest[2]} -rp xml/* ${dest[0]}:${dest[1]}
+rm xml/* -r
+`)
+	
+	// execFile('powershell.exe', ['-File', scriptPath], (err, stdout, stderr) => {
+	exec(scriptPath, (err, stdout, stderr) => {
+		if (err) return console.error(err)
+
+		console.log(`stdout: ${stdout}`);
+		console.error(`stderr: ${stderr}`);
+
+		console.log('xml file copied')
+	})
 }

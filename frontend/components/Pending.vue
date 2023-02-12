@@ -101,6 +101,8 @@ const confirmCancel = () => {
 		.then(state.cancel.hide)
 }
 
+const editOrder = item => {}
+
 onMounted(() => {
 	fetch_list()
 	props.socket.on('order_finished', data => {
@@ -177,6 +179,7 @@ onMounted(() => {
 						<v-col cols="12">
 							<div class="d-flex justify-end">
 								<v-spacer></v-spacer>
+								<!-- <v-btn class="mr-4" color="success" @click="editOrder(item)" small>Edit</v-btn> -->
 								<v-btn color="error" @click="cancelOrder(item)" small>Cancel</v-btn>
 							</div>
 						</v-col>

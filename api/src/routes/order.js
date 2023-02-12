@@ -116,15 +116,32 @@ router.route('/')
 			})
 	})
 
-	.post((req, res) => { // create new order
+	.post(async (req, res) => { // create new order
 		let { description, user_id, items, issued, table_index, sendToPrinter } = req.body
-		
+
 		description = description ? description : ''
-		
-		resolve(`INSERT INTO orders VALUES (NULL, "${JSON.stringify(items)}", ${user_id}, ${table_index}, "${issued}", NULL, NULL, NULL, "pending", "${description}")`, res, result => {
-			updateOrder(result, table_index)
-			if (sendToPrinter) printOrder(result.insertId)
-		})
+
+		let currentOrder
+
+		try {
+			[currentOrder] = await query(`SELECT * FROM orders WHERE table_index=${table_index} AND status='pending'`)
+		} catch(err) {
+			console.log(err)
+		}
+
+		if (currentOrder == undefined)
+			resolve(`INSERT INTO orders VALUES (NULL, "${JSON.stringify(items)}", ${user_id}, ${table_index}, "${issued}", NULL, NULL, NULL, "pending", "${description}")`, res, result => {
+				updateOrder(result, table_index)
+				if (sendToPrinter) printOrder(result.insertId)
+			})
+		else {
+			const sql = `UPDATE orders SET menu_items='${JSON.stringify([...JSON.parse(currentOrder.menu_items), ...items])}', description='${currentOrder.description + '\n' + description}' WHERE id=${currentOrder.id}`
+			
+			resolve(sql, res, result => {
+				updateOrder(result, table_index)
+				if (sendToPrinter) printOrder(currentOrder.id)
+			})
+		}
 	})
 
 router.route('/done')

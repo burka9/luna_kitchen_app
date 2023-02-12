@@ -51,7 +51,7 @@ const reportStatus = {
 	'pending': 'Pending',
 	'canceled': 'Canceled',
 	'finished': 'Completed',
-	'archived': 'Completed',
+	'archived': 'Billed',
 }
 
 router.route('/')
@@ -62,7 +62,7 @@ router.route('/')
 			let report = []
 			let orders = await query(`SELECT * FROM orders`)
 			let items = await query(`SELECT * FROM menu_item`)
-			let waiters = await query(`SELECT * FROM user WHERE id=235325`)
+			let waiters = await query(`SELECT * FROM user`)
 			
 			orders.forEach(order => {
 				let list = JSON.parse(order.menu_items).sort()
@@ -73,6 +73,7 @@ router.route('/')
 					let waiter = waiters.find(waiter => waiter.id == order.user_id)
 					report.push({
 						id: item.id,
+						order_id: order.id,
 						category: item.category_id,
 						subcategory: item.subcategory_id,
 						maraki_id: item.maraki_id,

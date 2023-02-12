@@ -63,6 +63,8 @@ const filteredItems = computed(() => {
 			state.filter.date != null
 			&& new Date(state.filter.date).toDateString().toString() != new Date(parseInt(item.issue_date)).toDateString().toString()
 		) return 'exclude'
+
+		console.log(new Date(state.filter.date))
 		
 		return item
 	}).filter(item => item != 'exclude')

@@ -81,9 +81,14 @@
 	fetch_list()
 
 	onUpdated(() => {
-		if (state.newItem !== null) {
+		if (state.newItem) {
 			// console.log('new item added and updated view')
-			document.getElementById(`order-view-${state.newItem.id}`).classList.add('the-new-item')
+			const el = document.getElementById(`order-view-${state.newItem.id}`)
+			
+			if (el)
+				if (el.classList)
+					if (el.classList.add)
+						el.classList.add('the-new-item')
 			// setTimeout(() => {
 			// 	state.newItem.classList.remove('the-new-item')
 			// }, 5000)
@@ -134,8 +139,11 @@
 				}" :id="`order-view-${order.id}`" style="width: 400px">
 					<v-list-item>
 						<v-list-item-content>
-							<v-list-item-title :class="{'text-h5': true, 'white--text': order.canceled}">{{ order.user_name }}'s order</v-list-item-title>
+							<v-list-item-title :class="{'text-h5': true, 'white--text': order.canceled}">
+								{{ order.user_name }}'s order
+							</v-list-item-title>
 							<v-list-item-subtitle :class="{'text-subtitle-1': true, 'white--text': order.canceled}">{{ order.description }}</v-list-item-subtitle>
+							<span>Ref: {{ order.id }}</span>
 						</v-list-item-content>
 						<p :class="{'ma-0 text-subtitle-1': true, 'white--text': order.canceled}">{{ Number(order.price).toFixed(2) }}</p>
 						<p :class="{'ma-0 mx-2 text-subtitle-1': true, 'white--text': order.canceled}">-</p>

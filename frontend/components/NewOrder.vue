@@ -75,7 +75,7 @@ const deselectItem = item => {
 	if (-1 < index) state.selection.items.splice(index, 1)
 }
 
-const clear = () => {
+const clear = () => { return
 	state.order = {
 		table_index: -1,
 		description: '',
